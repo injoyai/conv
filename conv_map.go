@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+type HandlerMap func([]byte, interface{}) error
+
 type Map struct {
 	*Var
 	*VarExtend
@@ -13,27 +15,32 @@ type Map struct {
 	valArray []Map
 }
 
-// NewValue 新建数据
+// NewMap 新建数据
 // 递归获取所有可以解析数据
 // @val,任意参数,为nil时也需要声明map空间(否则继承var的方法会panic)
-func NewValue(val interface{}) Map {
+// @handlers 自定义解析函数,默认json
+func NewMap(i interface{}, handlers ...HandlerMap) Map {
+	handler := json.Unmarshal
+	if len(handlers) > 0 && handlers[0] != nil {
+		handler = handlers[0]
+	}
 	data := Map{
-		Var:    New(val),
+		Var:    New(i),
 		valMap: make(map[string]Map),
 	}
 	data.VarExtend = NewVarExtend(data)
-	if val != nil {
+	if i != nil {
 		m := make(map[string]interface{})
-		bs := []byte(String(val))
-		if err := json.Unmarshal(bs, &m); err == nil {
+		bs := []byte(String(i))
+		if err := handler(bs, &m); err == nil {
 			for i, v := range m {
-				data.valMap[i] = NewValue(v)
+				data.valMap[i] = NewMap(v)
 			}
 		} else {
 			var list []interface{}
-			if err := json.Unmarshal(bs, &list); err == nil {
+			if err := handler(bs, &list); err == nil {
 				for _, v := range list {
-					data.valArray = append(data.valArray, NewValue(v))
+					data.valArray = append(data.valArray, NewMap(v))
 				}
 			}
 		}
@@ -57,12 +64,12 @@ func (this Map) Get(key string) Map {
 			v = v[:len(v)-len(last)]
 		}
 		if data, ok = data.valMap[v]; !ok {
-			data = NewValue(nil)
+			data = NewMap(nil)
 		} else if length := len(last); length >= 3 {
 			if index := Int(last[1 : length-1]); len(data.valArray) > index {
 				data = data.valArray[index]
 			} else {
-				data = NewValue(nil)
+				data = NewMap(nil)
 			}
 		}
 	}

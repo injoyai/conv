@@ -53,7 +53,7 @@ func (this Map) GoString() string {
 	return this.Var.String()
 }
 
-// Get 获取数据,最底层 例如 "a[1].b.c[0]"
+// Get 获取数据直到最底层 例如 "a[1].b.c[0]"
 func (this Map) Get(key string) Map {
 	data := this
 	for _, v := range strings.Split(key, ".") {

@@ -7,11 +7,11 @@ import (
 )
 
 func TestBytes(t *testing.T) {
-	t.Log(hex.EncodeToString(Bytes(100)))
-	t.Log(Byte("00000100"))
+	t.Log(hex.EncodeToString(Bytes(100))) // 64
+	t.Log(Byte("00000100"))               // 64
 	x := falseArray
 	x[4] = true
-	t.Log(Byte(x))
+	t.Log(Byte(x)) // 8
 }
 
 func TestInt64(t *testing.T) {

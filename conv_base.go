@@ -32,6 +32,9 @@ var (
 
 // toBytes 任意类型转 []byte.
 func toBytes(i interface{}) []byte {
+	if i == nil {
+		return []byte{}
+	}
 	switch value := GetNature(i).(type) {
 	case []byte:
 		return value
@@ -43,7 +46,7 @@ func toBytes(i interface{}) []byte {
 				result++
 			}
 		}
-		return Bytes(result)
+		return toBytes(result)
 	}
 	if IsNumber(i) {
 		bytesBuffer := bytes.NewBuffer([]byte{})
@@ -55,7 +58,7 @@ func toBytes(i interface{}) []byte {
 		}
 		return value
 	}
-	return []byte(String(i))
+	return []byte(toString(i))
 }
 
 // toString 任意类型转 string.
@@ -124,7 +127,7 @@ func toString(i interface{}) string {
 			}
 		}
 		if kind == reflect.Ptr {
-			return String(rv.Elem().Interface())
+			return toString(rv.Elem().Interface())
 		}
 		// we try use json.Marshal to convert.
 		jsonBytes, err := json.Marshal(value)
@@ -191,7 +194,7 @@ func toInt64(i interface{}) int64 {
 	case apiInt64:
 		return value.Int64()
 	default:
-		s := String(value)
+		s := toString(value)
 		base := int64(1)
 		if len(s) > 0 {
 			if s[0] == '-' {
@@ -225,7 +228,7 @@ func toInt64(i interface{}) int64 {
 		}
 
 		// Float64
-		return int64(Float64(value))
+		return int64(toFloat64(value))
 	}
 }
 
@@ -281,7 +284,7 @@ func toUint64(i interface{}) uint64 {
 	case apiUint64:
 		return value.Uint64()
 	default:
-		s := String(value)
+		s := toString(value)
 		// HEX 十六进制
 		if len(s) > 2 && strings.ToLower(s[0:2]) == "0x" {
 			if v, err := strconv.ParseUint(s[2:], 16, 64); err == nil {
@@ -305,7 +308,7 @@ func toUint64(i interface{}) uint64 {
 			return v
 		}
 		// Float64
-		return uint64(Float64(value))
+		return uint64(toFloat64(value))
 	}
 }
 
@@ -326,7 +329,7 @@ func toFloat64(i interface{}) float64 {
 	case []byte:
 		return math.Float64frombits(binary.BigEndian.Uint64(padding(value, 8)))
 	default:
-		v, _ := strconv.ParseFloat(String(i), 64)
+		v, _ := strconv.ParseFloat(toString(i), 64)
 		return v
 	}
 }
@@ -357,7 +360,7 @@ func Bool(i interface{}) bool {
 		case reflect.Struct:
 			return true
 		default:
-			return emptyMap[strings.ToLower(String(i))] == nil
+			return emptyMap[strings.ToLower(toString(i))] == nil
 		}
 	}
 }

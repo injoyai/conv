@@ -208,10 +208,6 @@ func (this *Var) Bool(def ...bool) bool {
 	return Bool(this.Value)
 }
 
-func (this *Var) JsonUnmarshal(ptr interface{}) error {
-	return json.Unmarshal(this.Bytes(), ptr)
-}
-
 func (this *Var) Duration(def ...time.Duration) time.Duration {
 	if this.IsNil() && len(def) > 0 {
 		return def[0]
@@ -239,7 +235,13 @@ func (this *Var) Hour(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Hour
 }
 
-func (this *Var) Map() (m map[string]interface{}) {
-	_ = this.JsonUnmarshal(&m)
-	return
+func (this *Var) Map(def ...map[string]interface{}) map[string]interface{} {
+	if this.IsNil() && len(def) > 0 {
+		return def[0]
+	}
+	m := make(map[string]interface{})
+	if err := json.Unmarshal(this.Bytes(), &m); err != nil && len(def) > 0 {
+		return def[0]
+	}
+	return m
 }

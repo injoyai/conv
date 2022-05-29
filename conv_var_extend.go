@@ -150,10 +150,6 @@ func (this *VarExtend) GetBool(key string, def ...bool) bool {
 	return this.GetVar(key).Bool(def...)
 }
 
-func (this *VarExtend) JsonUnmarshal(key string, ptr interface{}) error {
-	return this.GetVar(key).JsonUnmarshal(ptr)
-}
-
 func (this *VarExtend) GetDuration(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Duration(def...)
 }

@@ -173,3 +173,7 @@ func (this *VarExtend) GetMinute(key string, def ...time.Duration) time.Duration
 func (this *VarExtend) GetHour(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Hour(def...)
 }
+
+func (this *VarExtend) GetMap(key string, def ...map[string]interface{}) map[string]interface{} {
+	return this.GetVar(key).Map(def...)
+}

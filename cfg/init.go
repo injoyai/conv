@@ -122,3 +122,8 @@ func GetMinute(key string, def ...time.Duration) time.Duration {
 func GetHour(key string, def ...time.Duration) time.Duration {
 	return Default.GetHour(key, def...)
 }
+
+// GetMap 读取map[string]interface{}类型
+func GetMap(key string, def ...map[string]interface{}) map[string]interface{} {
+	return Default.GetMap(key, def...)
+}

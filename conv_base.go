@@ -36,6 +36,7 @@ func toByte(i interface{}) byte {
 	case byte:
 		return value
 	case string:
+		//试用
 		if len(value)%8 == 0 && len(value) >= 8 {
 			valid := true
 			array := make([]bool, len(value))
@@ -69,6 +70,7 @@ func toBytes(i interface{}) []byte {
 		}
 		return Bytes(result)
 	case string:
+		//试用
 		if len(value)%8 == 0 && len(value) >= 8 {
 			valid := true
 			array := make([]bool, len(value))

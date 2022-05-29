@@ -172,17 +172,29 @@ func toInt64(i interface{}) int64 {
 				s = s[1:]
 			}
 		}
-		// Hexadecimal 十六进制
+		// HEX 十六进制
 		if len(s) > 2 && strings.ToLower(s[0:2]) == "0x" {
 			if v, err := strconv.ParseInt(s[2:], 16, 64); err == nil {
 				return v * base
 			}
 		}
-		// Decimal 十进制
+		// BIN 二进制
+		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
+			if v, err := strconv.ParseInt(s[2:], 2, 64); err == nil {
+				return v * base
+			}
+		}
+		// OCT 八进制
+		if len(s) > 2 && s[0] == '0' {
+			if v, err := strconv.ParseInt(s[1:], 8, 64); err == nil {
+				return v * base
+			}
+		}
+		// DEC 十进制
 		if v, err := strconv.ParseInt(s, 10, 64); err == nil {
 			return v * base
 		}
-		// OCT 八进制不考虑
+
 		// Float64
 		return int64(Float64(value))
 	}
@@ -233,15 +245,26 @@ func toUint64(i interface{}) uint64 {
 		s := String(value)
 		// HEX 十六进制
 		if len(s) > 2 && strings.ToLower(s[0:2]) == "0x" {
-			if v, e := strconv.ParseUint(s[2:], 16, 64); e == nil {
+			if v, err := strconv.ParseUint(s[2:], 16, 64); err == nil {
+				return v
+			}
+		}
+		// Decimal 二进制
+		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
+			if v, err := strconv.ParseUint(s[2:], 2, 64); err == nil {
+				return v
+			}
+		}
+		// OCT 八进制
+		if len(s) > 2 && s[0] == '0' {
+			if v, err := strconv.ParseUint(s[1:], 8, 64); err == nil {
 				return v
 			}
 		}
 		// DEC 十进制
-		if v, e := strconv.ParseUint(s, 10, 64); e == nil {
+		if v, err := strconv.ParseUint(s, 10, 64); err == nil {
 			return v
 		}
-		// OCT 八进制不考虑
 		// Float64
 		return uint64(Float64(value))
 	}

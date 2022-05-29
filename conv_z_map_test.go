@@ -29,7 +29,7 @@ func Test_newVal(t *testing.T) {
   }
 }`
 
-	val := NewValue(s)
+	val := NewMap(s)
 
 	//for i := 0; i < 100; i++ {
 	//	go func() {

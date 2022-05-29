@@ -239,7 +239,7 @@ func (this *Var) Map(def ...map[string]interface{}) map[string]interface{} {
 	if this.IsNil() && len(def) > 0 {
 		return def[0]
 	}
-	m := make(map[string]interface{})
+	var m map[string]interface{}
 	if err := json.Unmarshal(this.Bytes(), &m); err != nil && len(def) > 0 {
 		return def[0]
 	}

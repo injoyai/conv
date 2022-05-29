@@ -2,6 +2,7 @@ package conv
 
 import (
 	"encoding/hex"
+	"math"
 	"testing"
 )
 
@@ -29,4 +30,10 @@ func TestInt64(t *testing.T) {
 	t.Log(Uint64("0B100")) // 4
 	t.Log(Uint64("020"))   // 16
 	t.Log(Uint64("20"))    //20
+
+	t.Log(uint64(1 << 8))
+	t.Log(uint64(1 << 63))
+	t.Log(Uint64(-1))
+	t.Log(uint64(math.MaxUint64))
+
 }

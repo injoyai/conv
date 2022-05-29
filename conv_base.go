@@ -1,6 +1,7 @@
 package conv
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -28,6 +29,73 @@ var (
 		false, false, false, false,
 	}
 )
+
+// toByte 任意类型转 byte.
+func toByte(i interface{}) byte {
+	switch value := GetNature(i).(type) {
+	case byte:
+		return value
+	case string:
+		if len(value)%8 == 0 && len(value) >= 8 {
+			valid := true
+			array := make([]bool, len(value))
+			for i, v := range value {
+				if v != '0' && v != '1' {
+					valid = false
+					break
+				}
+				array[i] = v == '1'
+			}
+			if valid {
+				return Byte(array)
+			}
+		}
+	}
+	return Uint8(i)
+}
+
+// toBytes 任意类型转 []byte.
+func toBytes(i interface{}) []byte {
+	switch value := GetNature(i).(type) {
+	case []byte:
+		return value
+	case []bool:
+		result := byte(0)
+		for _, b := range value {
+			result *= 2
+			if b {
+				result++
+			}
+		}
+		return Bytes(result)
+	case string:
+		if len(value)%8 == 0 && len(value) >= 8 {
+			valid := true
+			array := make([]bool, len(value))
+			for i, v := range value {
+				if v != '0' && v != '1' {
+					valid = false
+					break
+				}
+				array[i] = v == '1'
+			}
+			if valid {
+				return Bytes(array)
+			}
+		}
+	}
+	if IsNumber(i) {
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		// why? binary.Write: invalid type int
+		binary.Write(bytesBuffer, binary.BigEndian, Int64(i))
+		value := bytesBuffer.Bytes()
+		for len(value) > 1 && value[0] == 0 {
+			value = value[1:]
+		}
+		return value
+	}
+	return []byte(String(i))
+}
 
 // toString 任意类型转 string.
 func toString(i interface{}) string {
@@ -146,7 +214,7 @@ func toInt64(i interface{}) int64 {
 		//正序 大端 []byte{0x00,0x00,0x01} >>> 1
 		return int64(binary.BigEndian.Uint64(padding(value, 8)))
 	case []bool:
-		//二进制
+		// BIN 二进制
 		result := int64(0)
 		for _, b := range value {
 			result *= 2
@@ -237,6 +305,16 @@ func toUint64(i interface{}) uint64 {
 		return 0
 	case []byte:
 		return binary.BigEndian.Uint64(padding(value, 8))
+	case []bool:
+		// BIN 二进制
+		result := uint64(0)
+		for _, b := range value {
+			result *= 2
+			if b {
+				result++
+			}
+		}
+		return result
 	case apiUint:
 		return uint64(value.Uint())
 	case apiUint64:
@@ -249,7 +327,7 @@ func toUint64(i interface{}) uint64 {
 				return v
 			}
 		}
-		// Decimal 二进制
+		// BIN 二进制
 		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
 			if v, err := strconv.ParseUint(s[2:], 2, 64); err == nil {
 				return v

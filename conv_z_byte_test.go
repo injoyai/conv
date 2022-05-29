@@ -34,6 +34,7 @@ func TestBinStr(t *testing.T) {
 	t.Log(String(falseArray))
 	t.Log(BINStr(65536))
 	t.Log(BINStr(256))
+	t.Log(BINStr(-1))
 	for i := 0; i < 10; i++ {
 		t.Log(BINStr(i))
 	}

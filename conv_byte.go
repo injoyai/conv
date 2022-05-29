@@ -9,11 +9,11 @@ import (
 func toBIN(i interface{}) (result []bool) {
 	number := Uint64(i)
 	bit := 64
-	if number > 9223372036854775808 {
-		x := 9223372036854775808*2 - 1 - number + 1
+	if number > uint64(1<<63) {
+		x := math.MaxUint64 - number + 1
 		bit = 8
-		for x >= 256 {
-			x /= 256
+		for x >= 1<<8 {
+			x /= 1 << 8
 			bit += 8
 		}
 		switch bit {

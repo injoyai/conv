@@ -1,84 +1,13 @@
 package conv
 
-import (
-	"bytes"
-	"encoding/binary"
-)
-
 // Byte 任意类型转 byte.
 func Byte(i interface{}) byte {
-	switch value := GetNature(i).(type) {
-	case byte:
-		return value
-	case []bool:
-		result := byte(0)
-		for _, b := range value {
-			result *= 2
-			if b {
-				result++
-			}
-		}
-		return result
-	case string:
-		if len(value)%8 == 0 && len(value) >= 8 {
-			valid := true
-			array := make([]bool, len(value))
-			for i, v := range value {
-				if v != '0' && v != '1' {
-					valid = false
-					break
-				}
-				array[i] = v == '1'
-			}
-			if valid {
-				return Byte(array)
-			}
-		}
-	}
-	return Uint8(i)
+	return toByte(i)
 }
 
 // Bytes 任意类型转 []byte.
 func Bytes(i interface{}) []byte {
-	switch value := GetNature(i).(type) {
-	case []byte:
-		return value
-	case []bool:
-		result := byte(0)
-		for _, b := range value {
-			result *= 2
-			if b {
-				result++
-			}
-		}
-		return Bytes(result)
-	case string:
-		if len(value)%8 == 0 && len(value) >= 8 {
-			valid := true
-			array := make([]bool, len(value))
-			for i, v := range value {
-				if v != '0' && v != '1' {
-					valid = false
-					break
-				}
-				array[i] = v == '1'
-			}
-			if valid {
-				return Bytes(array)
-			}
-		}
-	}
-	if IsNumber(i) {
-		bytesBuffer := bytes.NewBuffer([]byte{})
-		// why? binary.Write: invalid type int
-		binary.Write(bytesBuffer, binary.BigEndian, Int64(i))
-		value := bytesBuffer.Bytes()
-		for len(value) > 1 && value[0] == 0 {
-			value = value[1:]
-		}
-		return value
-	}
-	return []byte(String(i))
+	return toBytes(i)
 }
 
 // Rune 任意类型转 rune.
@@ -185,14 +114,14 @@ func Interfaces(i interface{}) []interface{} {
 	return toInterfaces(i)
 }
 
-// BIN 任意类型转 []bool 长度8的倍数且大于0,true代表二进制的1.
+// BIN 任意类型转 []bool 返回长度8的倍数且大于0,true代表二进制的1.
 func BIN(i interface{}) []bool {
 	return toBIN(i)
 }
 
 // BINStr 任意类型转 string 长度8的倍数且大于0,由'1'和'0'组成,
 // +1 >>> "00000001"
-
+// -1 >>> "11111111"
 func BINStr(i interface{}) string {
 	result := ""
 	for _, v := range BIN(i) {

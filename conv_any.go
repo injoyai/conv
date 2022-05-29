@@ -2,7 +2,7 @@ package conv
 
 // Byte 任意类型转 byte.
 func Byte(i interface{}) byte {
-	return toByte(i)
+	return Uint8(i)
 }
 
 // Bytes 任意类型转 []byte.

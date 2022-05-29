@@ -30,31 +30,6 @@ var (
 	}
 )
 
-// toByte 任意类型转 byte.
-func toByte(i interface{}) byte {
-	switch value := GetNature(i).(type) {
-	case byte:
-		return value
-	case string:
-		//试用
-		if len(value)%8 == 0 && len(value) >= 8 {
-			valid := true
-			array := make([]bool, len(value))
-			for i, v := range value {
-				if v != '0' && v != '1' {
-					valid = false
-					break
-				}
-				array[i] = v == '1'
-			}
-			if valid {
-				return Byte(array)
-			}
-		}
-	}
-	return Uint8(i)
-}
-
 // toBytes 任意类型转 []byte.
 func toBytes(i interface{}) []byte {
 	switch value := GetNature(i).(type) {
@@ -69,22 +44,6 @@ func toBytes(i interface{}) []byte {
 			}
 		}
 		return Bytes(result)
-	case string:
-		//试用
-		if len(value)%8 == 0 && len(value) >= 8 {
-			valid := true
-			array := make([]bool, len(value))
-			for i, v := range value {
-				if v != '0' && v != '1' {
-					valid = false
-					break
-				}
-				array[i] = v == '1'
-			}
-			if valid {
-				return Bytes(array)
-			}
-		}
 	}
 	if IsNumber(i) {
 		bytesBuffer := bytes.NewBuffer([]byte{})

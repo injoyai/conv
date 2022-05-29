@@ -36,4 +36,11 @@ func TestInt64(t *testing.T) {
 	t.Log(Uint64(-1))
 	t.Log(uint64(math.MaxUint64))
 
+	t.Log(Bytes(uint64(math.MaxUint64)))
+	t.Log(Byte(uint64(math.MaxUint64 - 1)))
+	t.Log(Byte("0000010"))    // 8 八进制
+	t.Log(Byte("0b00000010")) // 2 二进制
+	t.Log(Bytes("0000010"))   // [48 48 48 48 48 49 48]
+	t.Log(Bytes("00000010"))
+
 }

@@ -18,12 +18,7 @@ type Map struct {
 // NewMap 新建数据
 // 递归获取所有可以解析数据
 // @val,任意参数,为nil时也需要声明map空间(否则继承var的方法会panic)
-// @handlers 自定义解析函数,默认json
-func NewMap(i interface{}, handlers ...HandlerMap) Map {
-	handler := json.Unmarshal
-	if len(handlers) > 0 && handlers[0] != nil {
-		handler = handlers[0]
-	}
+func NewMap(i interface{}) Map {
 	data := Map{
 		Var:    New(i),
 		valMap: make(map[string]Map),
@@ -32,13 +27,13 @@ func NewMap(i interface{}, handlers ...HandlerMap) Map {
 	if i != nil {
 		m := make(map[string]interface{})
 		bs := []byte(String(i))
-		if err := handler(bs, &m); err == nil {
+		if err := json.Unmarshal(bs, &m); err == nil {
 			for i, v := range m {
 				data.valMap[i] = NewMap(v)
 			}
 		} else {
 			var list []interface{}
-			if err := handler(bs, &list); err == nil {
+			if err := json.Unmarshal(bs, &list); err == nil {
 				for _, v := range list {
 					data.valArray = append(data.valArray, NewMap(v))
 				}

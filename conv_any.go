@@ -114,6 +114,11 @@ func Interfaces(i interface{}) []interface{} {
 	return toInterfaces(i)
 }
 
+// Array 任意类型转 []Interface.
+func Array(i interface{}) []interface{} {
+	return toInterfaces(i)
+}
+
 // BIN 任意类型转 []bool 返回长度8的倍数且大于0,true代表二进制的1.
 func BIN(i interface{}) []bool {
 	return toBIN(i)

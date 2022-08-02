@@ -5,6 +5,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"math"
 	"reflect"
 	"strconv"
@@ -99,9 +101,6 @@ func toString(i interface{}) string {
 	case []byte:
 		return string(value)
 	case time.Time:
-		if value.IsZero() {
-			return ""
-		}
 		return value.String()
 	case apiString:
 		return value.String()
@@ -109,6 +108,11 @@ func toString(i interface{}) string {
 		return value.Error()
 	case apiGoString:
 		return value.GoString()
+	case apiPayload:
+		return value.Payload()
+	case io.Reader:
+		bs, _ := ioutil.ReadAll(value)
+		return string(bs)
 	default:
 		if value == nil {
 			return ""
@@ -132,10 +136,11 @@ func toString(i interface{}) string {
 		}
 		// we try use json.Marshal to convert.
 		jsonBytes, err := json.Marshal(value)
-		if err != nil {
-			return fmt.Sprint(value)
+		if err == nil {
+			return string(jsonBytes)
 		}
-		return string(jsonBytes)
+		return fmt.Sprint(value)
+
 	}
 }
 
@@ -217,12 +222,6 @@ func toInt64(i interface{}) int64 {
 				return v * base
 			}
 		}
-		// OCT 八进制
-		if len(s) > 2 && s[0] == '0' {
-			if v, err := strconv.ParseInt(s[1:], 8, 64); err == nil {
-				return v * base
-			}
-		}
 		// DEC 十进制
 		if v, err := strconv.ParseInt(s, 10, 64); err == nil {
 			return v * base
@@ -295,12 +294,6 @@ func toUint64(i interface{}) uint64 {
 		// BIN 二进制
 		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
 			if v, err := strconv.ParseUint(s[2:], 2, 64); err == nil {
-				return v
-			}
-		}
-		// OCT 八进制
-		if len(s) > 2 && s[0] == '0' {
-			if v, err := strconv.ParseUint(s[1:], 8, 64); err == nil {
 				return v
 			}
 		}

@@ -12,6 +12,11 @@ type apiGoString interface {
 	GoString() string
 }
 
+// mqtt
+type apiPayload interface {
+	Payload() string
+}
+
 type apiInterfaces interface {
 	Interfaces() []interface{}
 }

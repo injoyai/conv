@@ -6,11 +6,11 @@ import (
 	"strings"
 )
 
-type HandlerMap func([]byte, interface{}) error
+type HandlerMap func([]byte) (map[string]interface{}, error)
 
 type Map struct {
 	*Var
-	*VarExtend
+	Extend
 	valMap   map[string]Map
 	valArray []Map
 }
@@ -23,7 +23,7 @@ func NewMap(i interface{}) Map {
 		Var:    New(i),
 		valMap: make(map[string]Map),
 	}
-	data.VarExtend = NewVarExtend(data)
+	data.Extend = NewExtend(data)
 	if i != nil {
 		m := make(map[string]interface{})
 		bs := []byte(String(i))

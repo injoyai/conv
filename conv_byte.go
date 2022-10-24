@@ -1,43 +1,38 @@
 package conv
 
 import (
-	"encoding/hex"
 	"math"
 )
 
-// toBIN 二进制,返回8倍数大于0长度bool数组,true代表1
+// toBIN 二进制,返回8倍数大于0长度bool数组,true代表1 根据类型确定长度
 func toBIN(i interface{}) (result []bool) {
-	number := Uint64(i)
-	bit := 64
-	if number > uint64(1<<63) {
-		x := math.MaxUint64 - number + 1
+	bit := IntSize
+	switch value := i.(type) {
+	case int8, uint8:
 		bit = 8
-		for x >= 1<<8 {
-			x /= 1 << 8
-			bit += 8
+	case int16, uint16:
+		bit = 16
+	case int32, uint32, float32:
+		bit = 32
+	case int64, uint64, float64:
+		bit = 64
+	case int, uint:
+	case []byte:
+		for _, v := range value {
+			result = append(result, toBIN(v)...)
 		}
-		switch bit {
-		case 8:
-			number = Uint64(Uint8(i))
-		case 16:
-			number = Uint64(Uint16(i))
-		case 24, 32:
-			number = Uint64(Uint32(i))
-		case 40, 48, 56, 64:
-		}
+		return
 	}
+	number := Uint64(i)
 	result = make([]bool, bit)
-	for i, _ := range result {
-		x := uint64(math.Pow(2, float64(bit-i-1)))
-		if number >= x {
-			result[i] = true
-			number -= x
+	for x, _ := range result {
+		y := uint64(math.Pow(2, float64(bit-x-1)))
+		if number >= y {
+			result[x] = true
+			number -= y
 		}
 	}
-	for len(result) > 8 && String(result[:8]) == String(falseArray) {
-		result = result[8:]
-	}
-	return
+	return result
 }
 
 // toOCT int64转8进制,长度22
@@ -53,9 +48,4 @@ func toOCT(i interface{}) (result string) {
 		s += "0"
 	}
 	return s + result
-}
-
-// BytesHEX 转16进制字符串
-func BytesHEX(i interface{}) string {
-	return hex.EncodeToString(Bytes(i))
 }

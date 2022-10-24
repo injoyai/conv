@@ -1,5 +1,10 @@
 package conv
 
+import (
+	"encoding/hex"
+	"math"
+)
+
 // Byte 任意类型转 byte.
 func Byte(i interface{}) byte {
 	return Uint8(i)
@@ -90,12 +95,26 @@ func Uint16(i interface{}) uint16 {
 }
 
 // Uint32 任意类型转 uint32.
+// 支持IEEE754标准 1.01 >>> 1094057984
 func Uint32(i interface{}) uint32 {
+	switch value := i.(type) {
+	case float32:
+		return math.Float32bits(value)
+	case float64:
+		return Uint32(float32(value))
+	}
 	return uint32(Uint64(i))
 }
 
 // Uint64 任意类型转 uint64.
+// 支持IEEE754标准 1.01 >>> 4622593173774925824
 func Uint64(i interface{}) uint64 {
+	switch value := i.(type) {
+	case float32:
+		return Uint64(float64(value))
+	case float64:
+		return math.Float64bits(value)
+	}
 	return toUint64(i)
 }
 
@@ -107,6 +126,26 @@ func Float32(i interface{}) float32 {
 // Float64 任意类型转 float64.
 func Float64(i interface{}) float64 {
 	return toFloat64(i)
+}
+
+// Bool 任意类型转 bool.
+func Bool(i interface{}) bool {
+	return toBool(i)
+}
+
+// GMap 任意类型转 map[string]interface{}
+func GMap(i interface{}) map[string]interface{} {
+	return toGMap(i)
+}
+
+// IMap 任意类型转 map[interface{}]interface{}
+func IMap(i interface{}) map[interface{}]interface{} {
+	return toIMap(i)
+}
+
+// DMap 解析任意数据
+func DMap(i interface{}) *Map {
+	return NewMap(i)
 }
 
 // Interfaces 任意类型转 []Interface.
@@ -140,9 +179,25 @@ func BINStr(i interface{}) string {
 	return result
 }
 
-// OCT 任意类型转 string 长度固定22,8进制,'0'-'7'.
+// OCTStr 任意类型转 string 长度固定22,8进制,'0'-'7'.
 // -1 >>> "1777777777777777777777"
 // +1 >>> "0000000000000000000001"
-func OCT(i interface{}) string {
+func OCTStr(i interface{}) string {
 	return toOCT(i)
+}
+
+// HEXStr 转16进制字符串
+func HEXStr(i interface{}) string {
+	return hex.EncodeToString(Bytes(i))
+}
+
+// HEXBytes 16进制的方式转字节
+func HEXBytes(i interface{}) []byte {
+	bs, _ := hex.DecodeString(String(i))
+	return bs
+}
+
+// HEXInt 先16进制转字节,在转Int
+func HEXInt(i interface{}) int {
+	return Int(HEXBytes(i))
 }

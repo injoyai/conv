@@ -1,7 +1,6 @@
 package conv
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 )
@@ -249,12 +248,26 @@ func (this *Var) Err(def ...error) error {
 }
 
 func (this *Var) Map(def ...map[string]interface{}) map[string]interface{} {
+	return this.GMap(def...)
+}
+
+func (this *Var) GMap(def ...map[string]interface{}) map[string]interface{} {
 	if this.IsNil() && len(def) > 0 {
 		return def[0]
 	}
-	var m map[string]interface{}
-	if err := json.Unmarshal(this.Bytes(), &m); err != nil && len(def) > 0 {
+	return GMap(this.Value)
+}
+
+func (this *Var) IMap(def ...map[interface{}]interface{}) map[interface{}]interface{} {
+	if this.IsNil() && len(def) > 0 {
 		return def[0]
 	}
-	return m
+	return IMap(this.Value)
+}
+
+func (this *Var) DMap(def ...interface{}) *Map {
+	if this.IsNil() && len(def) > 0 {
+		return NewMap(def[0])
+	}
+	return NewMap(this.Value)
 }

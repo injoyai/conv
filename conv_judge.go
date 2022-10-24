@@ -52,9 +52,7 @@ func IsInt(i interface{}) bool {
 		uint8,
 		uint16,
 		uint32,
-		uint64,
-		float32,
-		float64:
+		uint64:
 		return true
 	}
 	return false

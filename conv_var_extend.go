@@ -3,6 +3,7 @@ package conv
 import "time"
 
 type Extend interface {
+	IGetVar
 	IsDefault(key string) bool
 	IsNumber(key string) bool
 	IsString(key string) bool
@@ -15,6 +16,7 @@ type Extend interface {
 	IsNil(key string) bool
 	Get(key string) *Var
 	GetInterface(key string, def ...interface{}) interface{}
+	GetInterfaces(key string, def ...[]interface{}) []interface{}
 	GetByte(key string, def ...byte) byte
 	GetBytes(key string, def ...[]byte) []byte
 	GetRune(key string, def ...rune) rune
@@ -28,11 +30,11 @@ type Extend interface {
 	GetInt32(key string, def ...int32) int32
 	GetInt64(key string, def ...int64) int64
 	GetInt64s(key string, def ...[]int64) []int64
-	Uint(key string, def ...uint) uint
-	Uint8(key string, def ...uint8) uint8
-	Uint16(key string, def ...uint16) uint16
-	Uint32(key string, def ...uint32) uint32
-	Uint64(key string, def ...uint64) uint64
+	GetUint(key string, def ...uint) uint
+	GetUint8(key string, def ...uint8) uint8
+	GetUint16(key string, def ...uint16) uint16
+	GetUint32(key string, def ...uint32) uint32
+	GetUint64(key string, def ...uint64) uint64
 	GetFloat32(key string, def ...float32) float32
 	GetFloat64(key string, def ...float64) float64
 	GetBool(key string, def ...bool) bool
@@ -42,7 +44,9 @@ type Extend interface {
 	GetSecond(key string, def ...int) time.Duration
 	GetMinute(key string, def ...int) time.Duration
 	GetHour(key string, def ...int) time.Duration
-	GetMap(key string, def ...map[string]interface{}) map[string]interface{}
+	GetErr(key string, def ...error) error
+	GetGMap(key string, def ...map[string]interface{}) map[string]interface{}
+	GetDMap(key string, def ...interface{}) *Map
 }
 
 type IGetVar interface {
@@ -161,23 +165,23 @@ func (this *extend) GetInt64s(key string, def ...[]int64) []int64 {
 	return this.GetVar(key).Int64s(def...)
 }
 
-func (this *extend) Uint(key string, def ...uint) uint {
+func (this *extend) GetUint(key string, def ...uint) uint {
 	return this.GetVar(key).Uint(def...)
 }
 
-func (this *extend) Uint8(key string, def ...uint8) uint8 {
+func (this *extend) GetUint8(key string, def ...uint8) uint8 {
 	return this.GetVar(key).Uint8(def...)
 }
 
-func (this *extend) Uint16(key string, def ...uint16) uint16 {
+func (this *extend) GetUint16(key string, def ...uint16) uint16 {
 	return this.GetVar(key).Uint16(def...)
 }
 
-func (this *extend) Uint32(key string, def ...uint32) uint32 {
+func (this *extend) GetUint32(key string, def ...uint32) uint32 {
 	return this.GetVar(key).Uint32(def...)
 }
 
-func (this *extend) Uint64(key string, def ...uint64) uint64 {
+func (this *extend) GetUint64(key string, def ...uint64) uint64 {
 	return this.GetVar(key).Uint64(def...)
 }
 
@@ -221,6 +225,10 @@ func (this *extend) GetErr(key string, def ...error) error {
 	return this.GetVar(key).Err(def...)
 }
 
-func (this *extend) GetMap(key string, def ...map[string]interface{}) map[string]interface{} {
-	return this.GetVar(key).Map(def...)
+func (this *extend) GetGMap(key string, def ...map[string]interface{}) map[string]interface{} {
+	return this.GetVar(key).GMap(def...)
+}
+
+func (this *extend) GetDMap(key string, def ...interface{}) *Map {
+	return this.GetVar(key).DMap(def...)
 }

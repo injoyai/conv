@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const IntSize = strconv.IntSize
+
 var (
 	emptyMap = map[string]*struct{}{
 		"":      {},
@@ -26,10 +28,6 @@ var (
 	octMap = map[uint64]string{
 		0: "0", 1: "1", 2: "2", 3: "3",
 		4: "4", 5: "5", 6: "6", 7: "7",
-	}
-	falseArray = []bool{
-		false, false, false, false,
-		false, false, false, false,
 	}
 )
 
@@ -52,13 +50,18 @@ func toBytes(i interface{}) []byte {
 		return toBytes(result)
 	}
 	if IsNumber(i) {
-		bytesBuffer := bytes.NewBuffer([]byte{})
-		// why? binary.Write: invalid type int
-		binary.Write(bytesBuffer, binary.BigEndian, Int64(i))
-		value := bytesBuffer.Bytes()
-		for len(value) > 1 && value[0] == 0 {
-			value = value[1:]
+		// int 类型无法解析
+		if val, ok := i.(int); ok {
+			switch IntSize {
+			case 32:
+				i = int32(val)
+			default:
+				i = int64(val)
+			}
 		}
+		bytesBuffer := bytes.NewBuffer([]byte{})
+		binary.Write(bytesBuffer, binary.BigEndian, i)
+		value := bytesBuffer.Bytes()
 		return value
 	}
 	return []byte(toString(i))
@@ -195,6 +198,8 @@ func toInt64(i interface{}) int64 {
 		return result
 	case time.Time:
 		return value.Unix()
+	case time.Duration:
+		return int64(value)
 	case apiInt:
 		return int64(value.Int())
 	case apiInt64:
@@ -211,13 +216,13 @@ func toInt64(i interface{}) int64 {
 			}
 		}
 		// HEX 十六进制
-		if len(s) > 2 && strings.ToLower(s[0:2]) == "0x" {
+		if len(s) > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X') {
 			if v, err := strconv.ParseInt(s[2:], 16, 64); err == nil {
 				return v * base
 			}
 		}
 		// BIN 二进制
-		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
+		if len(s) > 2 && s[0] == '0' && (s[1] == 'b' || s[1] == 'B') {
 			if v, err := strconv.ParseInt(s[2:], 2, 64); err == nil {
 				return v * base
 			}
@@ -226,7 +231,10 @@ func toInt64(i interface{}) int64 {
 		if v, err := strconv.ParseInt(s, 10, 64); err == nil {
 			return v * base
 		}
-
+		// 时间戳
+		if d, err := time.ParseDuration(s); err == nil {
+			return int64(d)
+		}
 		// Float64
 		return int64(toFloat64(value))
 	}
@@ -313,14 +321,23 @@ func toFloat64(i interface{}) float64 {
 	}
 	switch value := i.(type) {
 	case float32:
-		return float64(value)
+		// 处理互转精度问题,实际内存字节数据变了,需要注意
+		return toFloat64(toString(value))
 	case float64:
 		return value
+	case uint32: //IEEE754标准
+		return float64(math.Float32frombits(value))
+	case uint64: //IEEE754标准
+		return math.Float64frombits(value)
 	case apiFloat32:
 		return float64(value.Float32())
 	case apiFloat64:
 		return value.Float64()
 	case []byte:
+		if len(value) <= 4 {
+			// 处理互转精度问题
+			return toFloat64(math.Float32frombits(binary.BigEndian.Uint32(padding(value, 4))))
+		}
 		return math.Float64frombits(binary.BigEndian.Uint64(padding(value, 8)))
 	default:
 		v, _ := strconv.ParseFloat(toString(i), 64)
@@ -328,8 +345,8 @@ func toFloat64(i interface{}) float64 {
 	}
 }
 
-// Bool 任意类型转 bool.
-func Bool(i interface{}) bool {
+// toBool 任意类型转 bool.
+func toBool(i interface{}) bool {
 	if i == nil {
 		return false
 	}
@@ -460,4 +477,16 @@ func toInterfaces(i interface{}) []interface{} {
 		}
 	}
 	return array
+}
+
+func toGMap(i interface{}) map[string]interface{} {
+	m := make(map[string]interface{})
+	_ = json.Unmarshal(Bytes(i), &m)
+	return m
+}
+
+func toIMap(i interface{}) map[interface{}]interface{} {
+	m := make(map[interface{}]interface{})
+	_ = json.Unmarshal(Bytes(i), &m)
+	return m
 }

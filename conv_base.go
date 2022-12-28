@@ -48,6 +48,8 @@ func toBytes(i interface{}) []byte {
 			}
 		}
 		return toBytes(result)
+	case *Var:
+		return toBytes(value.Val())
 	}
 	if IsNumber(i) {
 		// int 类型无法解析
@@ -116,6 +118,8 @@ func toString(i interface{}) string {
 	case io.Reader:
 		bs, _ := ioutil.ReadAll(value)
 		return string(bs)
+	case *Var:
+		return toString(value.Val())
 	default:
 		if value == nil {
 			return ""
@@ -204,6 +208,8 @@ func toInt64(i interface{}) int64 {
 		return int64(value.Int())
 	case apiInt64:
 		return value.Int64()
+	case *Var:
+		return toInt64(value.Val())
 	default:
 		s := toString(value)
 		base := int64(1)
@@ -291,6 +297,8 @@ func toUint64(i interface{}) uint64 {
 		return uint64(value.Uint())
 	case apiUint64:
 		return value.Uint64()
+	case *Var:
+		return toUint64(value.Val())
 	default:
 		s := toString(value)
 		// HEX 十六进制
@@ -339,6 +347,8 @@ func toFloat64(i interface{}) float64 {
 			return toFloat64(math.Float32frombits(binary.BigEndian.Uint32(padding(value, 4))))
 		}
 		return math.Float64frombits(binary.BigEndian.Uint64(padding(value, 8)))
+	case *Var:
+		return toFloat64(value.Val())
 	default:
 		v, _ := strconv.ParseFloat(toString(i), 64)
 		return v
@@ -357,6 +367,8 @@ func toBool(i interface{}) bool {
 		return emptyMap[strings.ToLower(toString(value))] == nil
 	case apiBool:
 		return value.Bool()
+	case *Var:
+		return toBool(value.Val())
 	default:
 		rv := reflect.ValueOf(i)
 		switch rv.Kind() {
@@ -457,6 +469,13 @@ func toInterfaces(i interface{}) []interface{} {
 		}
 	case apiInterfaces:
 		return value.Interfaces()
+	case *Var:
+		return []interface{}{value.Val()}
+	case []*Var:
+		array = make([]interface{}, len(value))
+		for k, v := range value {
+			array[k] = v.Val()
+		}
 	default:
 		var (
 			rv   = reflect.ValueOf(i)
@@ -487,6 +506,12 @@ func toGMap(i interface{}) map[string]interface{} {
 
 func toIMap(i interface{}) map[interface{}]interface{} {
 	m := make(map[interface{}]interface{})
+	_ = json.Unmarshal(Bytes(i), &m)
+	return m
+}
+
+func toSMap(i interface{}) map[string]string {
+	m := make(map[string]string)
 	_ = json.Unmarshal(Bytes(i), &m)
 	return m
 }

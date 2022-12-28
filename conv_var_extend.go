@@ -46,6 +46,8 @@ type Extend interface {
 	GetHour(key string, def ...int) time.Duration
 	GetErr(key string, def ...error) error
 	GetGMap(key string, def ...map[string]interface{}) map[string]interface{}
+	GetSMap(key string, def ...map[string]string) map[string]string
+	GetIMap(key string, def ...map[interface{}]interface{}) map[interface{}]interface{}
 	GetDMap(key string, def ...interface{}) *Map
 }
 
@@ -227,6 +229,14 @@ func (this *extend) GetErr(key string, def ...error) error {
 
 func (this *extend) GetGMap(key string, def ...map[string]interface{}) map[string]interface{} {
 	return this.GetVar(key).GMap(def...)
+}
+
+func (this *extend) GetSMap(key string, def ...map[string]string) map[string]string {
+	return this.GetVar(key).SMap(def...)
+}
+
+func (this *extend) GetIMap(key string, def ...map[interface{}]interface{}) map[interface{}]interface{} {
+	return this.GetVar(key).IMap(def...)
 }
 
 func (this *extend) GetDMap(key string, def ...interface{}) *Map {

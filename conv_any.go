@@ -138,6 +138,11 @@ func GMap(i interface{}) map[string]interface{} {
 	return toGMap(i)
 }
 
+// SMap 任意类型转 map[string]string
+func SMap(i interface{}) map[string]string {
+	return toSMap(i)
+}
+
 // IMap 任意类型转 map[interface{}]interface{}
 func IMap(i interface{}) map[interface{}]interface{} {
 	return toIMap(i)

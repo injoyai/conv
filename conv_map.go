@@ -1,7 +1,7 @@
 package conv
 
 import (
-	"github.com/json-iterator/go"
+	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"
 )
@@ -93,7 +93,7 @@ func (this *Map) getList(idx int) *Map {
 }
 
 func (this *Map) getParse() func(data []byte, v interface{}) error {
-	parse := jsoniter.Unmarshal
+	parse := json.Unmarshal
 	switch this.model {
 	case "json":
 	case "xml":

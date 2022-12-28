@@ -258,6 +258,13 @@ func (this *Var) GMap(def ...map[string]interface{}) map[string]interface{} {
 	return GMap(this.Value)
 }
 
+func (this *Var) SMap(def ...map[string]string) map[string]string {
+	if this.IsNil() && len(def) > 0 {
+		return def[0]
+	}
+	return SMap(this.Value)
+}
+
 func (this *Var) IMap(def ...map[interface{}]interface{}) map[interface{}]interface{} {
 	if this.IsNil() && len(def) > 0 {
 		return def[0]

@@ -17,11 +17,6 @@ func SelectString(b bool, v1, v2 string) string {
 	return SelectVar(b, v1, v2).String()
 }
 
-// GetSelectString 过度
-func GetSelectString(b bool, v1, v2 string) string {
-	return SelectVar(b, v1, v2).String()
-}
-
 func SelectUint8(b bool, v1, v2 uint8) uint8 {
 	return SelectVar(b, v1, v2).Uint8()
 }

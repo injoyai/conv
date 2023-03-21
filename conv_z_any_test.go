@@ -95,3 +95,11 @@ func TestUint(t *testing.T) {
 func TestMap(t *testing.T) {
 
 }
+
+func TestFloat64bits(t *testing.T) {
+	t.Log(Int(Bytes(1.01)))
+	t.Log(Uint64(1.01))
+	if Int(Bytes(1.01)) != 4607227454796291113 {
+		t.Error("错误")
+	}
+}

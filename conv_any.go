@@ -2,7 +2,6 @@ package conv
 
 import (
 	"encoding/hex"
-	"math"
 )
 
 // Byte 任意类型转 byte.
@@ -95,26 +94,14 @@ func Uint16(i interface{}) uint16 {
 }
 
 // Uint32 任意类型转 uint32.
-// 支持IEEE754标准 1.01 >>> 1094057984
+// 去除支持IEEE754标准 1.01 >>> 1094057984 使用 math.Float32bits(value)
 func Uint32(i interface{}) uint32 {
-	switch value := i.(type) {
-	case float32:
-		return math.Float32bits(value)
-	case float64:
-		return Uint32(float32(value))
-	}
 	return uint32(Uint64(i))
 }
 
 // Uint64 任意类型转 uint64.
-// 支持IEEE754标准 1.01 >>> 4622593173774925824
+// 去除支持IEEE754标准 1.01 >>> 4622593173774925824 使用 math.Float64bits(value)
 func Uint64(i interface{}) uint64 {
-	switch value := i.(type) {
-	case float32:
-		return Uint64(float64(value))
-	case float64:
-		return math.Float64bits(value)
-	}
 	return toUint64(i)
 }
 

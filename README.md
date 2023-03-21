@@ -67,9 +67,9 @@
     
         // 如果输入类型是float32或者float64,并且期待的类型是uint32或者是uint64 
         // 则根据IEEE二进制浮点数算术标准（IEEE 754）来转换
-        result := conv.Uint32(a)
-
-        fmt.Println(result) // 得到结果 1123026207
+        // result := conv.Uint32(a)
+        // 已经不支持 使用math包转换
+        // fmt.Println(result) // 得到结果 1123026207
 
         var b float32 = 120.01
 

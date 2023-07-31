@@ -25,6 +25,10 @@ func (this *Var) IsNumber() bool {
 	return IsNumber(this.Value)
 }
 
+func (this *Var) IsString() bool {
+	return IsString(this.Value)
+}
+
 func (this *Var) IsInt() bool {
 	return IsInt(this.Value)
 }
@@ -39,6 +43,14 @@ func (this *Var) IsBool() bool {
 
 func (this *Var) IsTime() bool {
 	return IsTime(this.Value)
+}
+
+func (this *Var) IsArray() bool {
+	return IsArray(this.Value)
+}
+
+func (this *Var) IsPointer() bool {
+	return IsPointer(this.Value)
 }
 
 func (this *Var) IsNil() bool {

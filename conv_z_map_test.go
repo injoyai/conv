@@ -53,6 +53,8 @@ func Test_newVal(t *testing.T) {
 	t.Log(val.Get("D.x").String())
 	t.Log(val.Get("level.level1.level2.level3").String())
 	t.Log(val.Get("level.level1.level2").String())
+	t.Log(val.IsDefault("A[1]"))
+	t.Log(val.IsDefault())
 	//	}()
 	//}
 	//for {

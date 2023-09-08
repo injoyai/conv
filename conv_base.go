@@ -24,6 +24,7 @@ var (
 		"off":   {},
 		"false": {},
 		"close": {},
+		"关":     {},
 	}
 	octMap = map[uint64]string{
 		0: "0", 1: "1", 2: "2", 3: "3",

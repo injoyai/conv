@@ -91,7 +91,9 @@
 
         fmt.Println(conv.Bool(a)) // 得到结果 false
 
-        var b string = 
+        var b string = "开"
+
+		fmt.Println(conv.Bool(b)) // 得到结果 true
 
       }
 

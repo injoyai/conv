@@ -3,7 +3,6 @@ package codec
 import (
 	"github.com/injoyai/conv/codec/json"
 	"github.com/injoyai/conv/codec/toml"
-	"github.com/injoyai/conv/codec/xml"
 	"github.com/injoyai/conv/codec/yaml"
 )
 
@@ -17,5 +16,4 @@ var (
 	Json    Interface = json.Json{}
 	Toml    Interface = toml.Toml{}
 	Yaml    Interface = yaml.Yaml{}
-	Xml     Interface = xml.Xml{}
 )

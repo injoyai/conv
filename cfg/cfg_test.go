@@ -2,6 +2,7 @@ package cfg
 
 import (
 	"github.com/injoyai/conv/codec"
+	"github.com/injoyai/conv/codec/xml"
 	"testing"
 )
 
@@ -38,7 +39,7 @@ func TestToml(t *testing.T) {
 
 // 测试未通过,待完成
 func TestXml(t *testing.T) {
-	Default = New("../testdata/config.xml", codec.Xml)
+	Default = New("../testdata/config.xml", xml.Xml{})
 	TestPrint(t)
 	t.Log(GetString("user.name"))
 	t.Log(GetString("name"))

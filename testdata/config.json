@@ -1,0 +1,15 @@
+{
+  "注释": "注释",
+  "name": "json",
+  "age": 18,
+  "child": [
+    {
+      "name": "child1",
+      "age": 10
+    },
+    {
+      "name": "child2",
+      "age": 8
+    }
+  ]
+}

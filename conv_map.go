@@ -1,6 +1,7 @@
 package conv
 
 import (
+	"github.com/injoyai/conv/codec"
 	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"
@@ -8,17 +9,17 @@ import (
 
 // NewMap 新建数据
 // 递归(惰性,用到才解析)获取所有可以解析数据
-func NewMap(i interface{}, model ...string) *Map {
-	return newMap(i, model...).decode()
+func NewMap(i interface{}, codec ...codec.Interface) *Map {
+	return newMap(i, codec...).decode()
 }
 
-func newMap(i interface{}, model ...string) *Map {
+func newMap(i interface{}, codec ...codec.Interface) *Map {
 	if val, ok := i.(*Map); ok {
 		return val
 	}
-	m := &Map{Var: New(i), model: "json"}
-	if len(model) > 0 {
-		m.model = model[0]
+	m := &Map{Var: New(i)}
+	if len(codec) > 0 {
+		m.codec = codec[0]
 	}
 	return m
 }
@@ -32,6 +33,7 @@ type Map struct {
 	valList []*Map          //list
 	de      bool            //是否解析
 	model   string          //解析模式
+	codec   codec.Interface //编解码
 }
 
 func (this *Map) IsDefault(key ...string) bool {
@@ -152,29 +154,24 @@ func (this *Map) getMap(key string) *Map {
 	if ok {
 		return data.decode()
 	}
-	return NewMap(nil, this.model)
+	return NewMap(nil, this.codec)
 }
 
 func (this *Map) getList(idx int) *Map {
 	if idx < len(this.valList) {
 		return this.valList[idx].decode()
 	}
-	return NewMap(nil, this.model)
+	return NewMap(nil, this.codec)
 }
 
 func (this *Map) getParse() func(data []byte, v interface{}) error {
-	parse := json.Unmarshal
-	switch this.model {
-	case "json":
-	case "xml":
-	case "toml":
-	case "yaml":
-	case "ini":
-	case "url":
-	case "html":
-	default:
+	if this.codec == nil {
+		if codec.Default != nil {
+			return codec.Default.Unmarshal
+		}
+		return json.Unmarshal
 	}
-	return parse
+	return this.codec.Unmarshal
 }
 
 func (this *Map) decode() *Map {
@@ -186,13 +183,13 @@ func (this *Map) decode() *Map {
 			bs := []byte(this.Var.String())
 			if err := parse(bs, &m); err == nil {
 				for i, v := range m {
-					this.valMap[i] = newMap(v, this.model)
+					this.valMap[i] = newMap(v, codec.Json)
 				}
 			} else {
 				var list []interface{}
 				if err := parse(bs, &list); err == nil {
 					for _, v := range list {
-						this.valList = append(this.valList, newMap(v, this.model))
+						this.valList = append(this.valList, newMap(v, codec.Json))
 					}
 				}
 			}

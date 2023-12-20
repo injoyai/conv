@@ -1,0 +1,8 @@
+name = "toml"
+age=18
+[[child]]
+    name="child1"
+    age=10
+[[child]]
+    name="child2"
+    age=8

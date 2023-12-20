@@ -1,0 +1,7 @@
+name: yaml
+age: 18
+child:
+  - name: child1 #sss
+    age: 10
+  - name: child2
+    age: 8

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<user address="beijing">
+    <name>wanger</name>
+    <age>24</age>
+    <social>
+        <email>wanger@163.com</email>
+        <mobile>1233455464</mobile>
+    </social>
+</user>

@@ -2,25 +2,23 @@ package cfg
 
 import (
 	"github.com/injoyai/conv"
+	"github.com/injoyai/conv/codec"
 	"io/ioutil"
 	"time"
 )
 
-const (
-	DefaultPath  = "./config/config.json"
-	DefaultModel = "json"
+var (
+	Default = New("./config/config.json")
 )
 
-var Default = New()
-
 type Entity struct {
-	err  error
-	path string
+	err error
 	*conv.Map
+	reread func() *Entity
 }
 
 func (this *Entity) Reread() *Entity {
-	x := New(this.path)
+	x := this.reread()
 	if x.err == nil {
 		this.Map = x.Map
 	}
@@ -38,27 +36,35 @@ func (this *Entity) Err() error {
 	return this.err
 }
 
-func FromAny(v interface{}) *Entity {
+func WithAny(v interface{}, codec ...codec.Interface) *Entity {
 	data := &Entity{}
-	data.Map = conv.NewMap(v, DefaultModel)
+	data.Map = conv.NewMap(v, codec...)
+	data.reread = func() *Entity {
+		return WithAny(v, codec...)
+	}
 	return data
 }
 
-func New(paths ...string) *Entity {
-	path := conv.GetDefaultString(DefaultPath, paths...)
-	data := &Entity{path: path}
+func WithPath(path string, codec ...codec.Interface) *Entity {
+	data := &Entity{}
 	bs, err := ioutil.ReadFile(path)
 	if err != nil {
 		data.err = err
 	}
-	data.Map = conv.NewMap(bs, DefaultModel)
+	data.Map = conv.NewMap(bs, codec...)
+	data.reread = func() *Entity {
+		return WithPath(path, codec...)
+	}
 	return data
+}
+
+func New(path string, codec ...codec.Interface) *Entity {
+	return WithPath(path, codec...)
 }
 
 // Reread 重新读取配置
 func Reread() *Entity {
-	Default.Reread()
-	return Default
+	return Default.Reread()
 }
 
 // Get 获取value类型数据

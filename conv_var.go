@@ -14,6 +14,9 @@ func Nil() *Var {
 }
 
 func New(i interface{}) *Var {
+	if val, ok := i.(*Var); ok {
+		return val
+	}
 	return &Var{Value: i}
 }
 

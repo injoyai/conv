@@ -31,8 +31,7 @@ type Map struct {
 	Extend                  //继承
 	valMap  map[string]*Map //map
 	valList []*Map          //list
-	de      bool            //是否解析
-	model   string          //解析模式
+	de      bool            //是否已解析
 	codec   codec.Interface //编解码
 }
 

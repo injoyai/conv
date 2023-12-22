@@ -46,3 +46,10 @@ func TestXml(t *testing.T) {
 	t.Log(GetString("project.component"))
 	t.Log(GetString("component"))
 }
+
+func TestIni(t *testing.T) {
+	Default = New("../testdata/config.ini", codec.Ini)
+	TestPrint(t)
+	t.Log(GetString("advanced.network.settings.timeout"))
+	t.Log(GetString("advanced.network.mask"))
+}

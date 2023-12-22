@@ -1,6 +1,7 @@
 package codec
 
 import (
+	"github.com/injoyai/conv/codec/ini"
 	"github.com/injoyai/conv/codec/json"
 	"github.com/injoyai/conv/codec/toml"
 	"github.com/injoyai/conv/codec/yaml"
@@ -16,4 +17,5 @@ var (
 	Json    Interface = json.Json{}
 	Toml    Interface = toml.Toml{}
 	Yaml    Interface = yaml.Yaml{}
+	Ini     Interface = ini.Ini{}
 )

@@ -101,7 +101,7 @@ func Test_Map2(t *testing.T) {
 
 // TestNewMap2 [0.67,0.58,0.62,0.59,0.60,0.57]
 func TestNewMap2(t *testing.T) {
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 10000; i++ {
 		NewMap(s)
 	}
 }

@@ -25,7 +25,7 @@ func newMap(i interface{}, codec ...codec.Interface) *Map {
 }
 
 // Map deep 惰性解析 DMap
-// 万次解析0.09s(上版本0.6s)
+// 万次解析0.09s
 type Map struct {
 	*Var                    //值
 	Extend                  //继承
@@ -178,19 +178,31 @@ func (this *Map) decode() *Map {
 		parse := this.getParse()
 		this.valMap = make(map[string]*Map)
 		if !this.Var.IsNil() {
-			m := make(map[string]interface{})
-			bs := []byte(this.Var.String())
-			if err := parse(bs, &m); err == nil {
-				for i, v := range m {
+			switch val := this.Var.Val().(type) {
+			case map[string]interface{}:
+				for i, v := range val {
 					this.valMap[i] = newMap(v, codec.Json)
 				}
-			} else {
-				var list []interface{}
-				if err := parse(bs, &list); err == nil {
-					for _, v := range list {
-						this.valList = append(this.valList, newMap(v, codec.Json))
+			case []interface{}:
+				for _, v := range val {
+					this.valList = append(this.valList, newMap(v, codec.Json))
+				}
+			default:
+				m := make(map[string]interface{})
+				bs := []byte(this.Var.String())
+				if err := parse(bs, &m); err == nil {
+					for i, v := range m {
+						this.valMap[i] = newMap(v, codec.Json)
+					}
+				} else {
+					var list []interface{}
+					if err := parse(bs, &list); err == nil {
+						for _, v := range list {
+							this.valList = append(this.valList, newMap(v, codec.Json))
+						}
 					}
 				}
+
 			}
 		}
 		this.Extend = NewExtend(this)

@@ -234,20 +234,24 @@ func copyValue(result, original reflect.Value) {
 			}
 		}
 	case reflect.Map:
-		// 如果是映射，则创建新的映射并递归复制键值对
-		result.Set(reflect.MakeMap(original.Type()))
-		for _, key := range original.MapKeys() {
-			destKey := reflect.New(key.Type()).Elem()
-			copyValue(destKey, key)
-			destValue := reflect.New(original.MapIndex(key).Type()).Elem()
-			copyValue(destValue, original.MapIndex(key))
-			result.SetMapIndex(destKey, destValue)
+		if !original.IsNil() {
+			// 如果是映射，则创建新的映射并递归复制键值对
+			result.Set(reflect.MakeMap(original.Type()))
+			for _, key := range original.MapKeys() {
+				destKey := reflect.New(key.Type()).Elem()
+				copyValue(destKey, key)
+				destValue := reflect.New(original.MapIndex(key).Type()).Elem()
+				copyValue(destValue, original.MapIndex(key))
+				result.SetMapIndex(destKey, destValue)
+			}
 		}
 	case reflect.Slice:
-		// 如果是切片，则创建新的切片并递归复制元素
-		result.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
-		for i := 0; i < original.Len(); i++ {
-			copyValue(result.Index(i), original.Index(i))
+		if !original.IsNil() {
+			// 如果是切片，则创建新的切片并递归复制元素
+			result.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
+			for i := 0; i < original.Len(); i++ {
+				copyValue(result.Index(i), original.Index(i))
+			}
 		}
 	default:
 		result.Set(original)

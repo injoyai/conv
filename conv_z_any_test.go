@@ -169,6 +169,21 @@ func TestCopy(t *testing.T) {
 		if len(m) == len(m3) {
 			t.Error("带指针的Map,测试未通过")
 		}
+
+	}
+	{ //空指针
+		m := map[interface{}]interface{}(nil)
+		m2 := Copy(m).(map[interface{}]interface{})
+		t.Log(m == nil)
+		t.Log(m2 == nil)
+		s := []interface{}(nil)
+		s2 := Copy(s).([]interface{})
+		t.Log(s == nil)
+		t.Log(s2 == nil)
+		a := (*testA)(nil)
+		b := Copy(a).(*testA)
+		t.Log(a == nil)
+		t.Log(b == nil)
 	}
 	{ //接口
 		a := testI(&testA{})

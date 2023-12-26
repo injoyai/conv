@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-type Var struct {
-	Value interface{}
-}
-
 func Nil() *Var {
 	return New(nil)
 }
@@ -18,6 +14,18 @@ func New(i interface{}) *Var {
 		return val
 	}
 	return &Var{Value: i}
+}
+
+type Var struct {
+	Value interface{}
+}
+
+func (this *Var) Set(i interface{}) {
+	this.Value = i
+}
+
+func (this *Var) Copy() *Var {
+	return New(Copy(this.Value))
 }
 
 func (this *Var) IsDefault() bool {

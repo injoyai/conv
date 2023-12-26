@@ -2,6 +2,7 @@ package conv
 
 import (
 	"encoding/hex"
+	"log"
 	"math"
 	"testing"
 	"time"
@@ -102,4 +103,107 @@ func TestFloat64bits(t *testing.T) {
 	if Int(Bytes(1.01)) != 4607227454796291113 {
 		t.Error("错误")
 	}
+}
+
+func TestCopy(t *testing.T) {
+
+	{ //基础数据的复制
+		a := 10
+		b := Copy(a)
+		if a != b.(int) {
+			t.Error("基础数据的复制,测试未通过")
+		}
+	}
+	{ //带指针的基础数据复制
+		x := 10
+		a := &x
+		b := Copy(a)
+		t.Logf("%p %p", a, b)
+		t.Log(*a, *(b.(*int)))
+		if *a != *(b.(*int)) {
+			t.Error("带指针的基础数据复制,测试未通过")
+		}
+	}
+	{ //复制对象
+		type A struct {
+			s string
+		}
+		a := A{"hello"}
+		b := Copy(a).(A)
+		b.s = "world"
+		t.Log("a:", a)
+		t.Log("b:", b)
+		if a.s == b.s {
+			t.Error("复制对象,测试未通过")
+		}
+	}
+	{ //复制带指针的对象
+		type A struct {
+			s string
+		}
+		a := &A{"hello"}
+		b := Copy(a).(*A)
+		b.s = "world"
+		t.Logf("a:%v %p", a, a)
+		t.Logf("b:%v %p", b, b)
+		if a.s == b.s {
+			t.Error("测试未通过")
+		}
+	}
+	{ //复制map
+		m := map[interface{}]interface{}{
+			"a": 1, 12: 2,
+		}
+		m2 := Copy(m).(map[interface{}]interface{})
+		m2[true] = "hello"
+		t.Log(m)
+		t.Log(m2)
+		if len(m) == len(m2) {
+			t.Error("不带指针的Map,测试未通过")
+		}
+		//带指针的map
+		m3 := *(Copy(&m).(*map[interface{}]interface{}))
+		m3[true] = "hello"
+		t.Log(m)
+		t.Log(m3)
+		if len(m) == len(m3) {
+			t.Error("带指针的Map,测试未通过")
+		}
+	}
+	{ //接口
+		a := testI(&testA{})
+		a.Set("a")
+		b := Copy(a).(testI)
+		b.Set("b")
+		a.Print()
+		b.Print()
+		t.Logf("%p,%p", a, b)
+		if a == b {
+			t.Error("接口复制,测试未通过")
+		}
+	}
+	{ //复制nil
+		a := (*testA)(nil)
+		b := Copy(a).(*testA)
+		t.Logf("%p,%p", a, b)
+		t.Log(a == b)
+	}
+
+}
+
+type testI interface {
+	Set(s string)
+	Print()
+}
+
+type testA struct {
+	s string
+}
+
+func (this *testA) Set(s string) {
+	this.s = s
+}
+
+func (this *testA) Print() {
+	log.Println(this.s)
 }

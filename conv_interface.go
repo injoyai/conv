@@ -48,3 +48,7 @@ type apiUint64 interface {
 type apiBool interface {
 	Bool() bool
 }
+
+type apiCopy interface {
+	Copy() interface{}
+}

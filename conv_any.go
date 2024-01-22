@@ -151,17 +151,17 @@ func Array(i interface{}) []interface{} {
 	return toInterfaces(i)
 }
 
-// BIN 任意类型转 []bool 返回长度8的倍数且大于0,true代表二进制的1.
-func BIN(i interface{}) []bool {
+// BINBool 任意类型转二进制 []bool 返回长度8的倍数且大于0,true代表二进制的1.
+func BINBool(i interface{}) []bool {
 	return toBIN(i)
 }
 
-// BINStr 任意类型转 string 长度8的倍数且大于0,由'1'和'0'组成,
+// BIN 任意类型转 []bool 返回长度8的倍数且大于0,true代表二进制的1.
 // +1 >>> "00000001"
 // -1 >>> "11111111"
-func BINStr(i interface{}) string {
+func BIN(i interface{}) string {
 	result := ""
-	for _, v := range BIN(i) {
+	for _, v := range toBIN(i) {
 		result += func() string {
 			if v {
 				return "1"
@@ -172,6 +172,20 @@ func BINStr(i interface{}) string {
 	return result
 }
 
+// BINStr 任意类型转 string 长度8的倍数且大于0,由'1'和'0'组成,
+// +1 >>> "00000001"
+// -1 >>> "11111111"
+func BINStr(i interface{}) string {
+	return BIN(i)
+}
+
+// OCT 任意类型转8进制 string 长度固定22,8进制,'0'-'7'.
+// -1 >>> "1777777777777777777777"
+// +1 >>> "0000000000000000000001"
+func OCT(i interface{}) string {
+	return toOCT(i)
+}
+
 // OCTStr 任意类型转 string 长度固定22,8进制,'0'-'7'.
 // -1 >>> "1777777777777777777777"
 // +1 >>> "0000000000000000000001"
@@ -179,20 +193,14 @@ func OCTStr(i interface{}) string {
 	return toOCT(i)
 }
 
-// HEXStr 转16进制字符串
-func HEXStr(i interface{}) string {
+// HEX 转16进制字符串
+func HEX(i interface{}) string {
 	return hex.EncodeToString(Bytes(i))
 }
 
-// HEXBytes 16进制的方式转字节
-func HEXBytes(i interface{}) []byte {
-	bs, _ := hex.DecodeString(String(i))
-	return bs
-}
-
-// HEXInt 先16进制转字节,在转Int
-func HEXInt(i interface{}) int {
-	return Int(HEXBytes(i))
+// HEXStr 转16进制字符串
+func HEXStr(i interface{}) string {
+	return hex.EncodeToString(Bytes(i))
 }
 
 // Copy 复制任意数据

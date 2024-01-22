@@ -20,19 +20,44 @@ func (this Bs) Len() int {
 	return len(this)
 }
 
+// Cap cap()
 func (this Bs) Cap() int {
 	return cap(this)
 }
 
+// Error 实现error
 func (this Bs) Error() string {
 	return this.String()
 }
 
+func (this Bs) Copy() Bs {
+	cp := Bs(make([]byte, this.Len()))
+	copy(cp, this)
+	return cp
+}
+
+// Append just append
+func (this Bs) Append(b ...byte) Bs {
+	return append(this, b...)
+}
+
+// Upper ASCII小写字母转大小字母
+func (this Bs) Upper() Bs {
+	return bytes.ToUpper(this)
+}
+
+// Lower ASCII大写字母转小写字母
+func (this Bs) Lower() Bs {
+	return bytes.ToLower(this)
+}
+
+// WriteTo 实现io.WriterTo
 func (this Bs) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(this)
 	return int64(n), err
 }
 
+// Sum 校验和
 func (this Bs) Sum() byte {
 	b := byte(0)
 	for _, v := range this {
@@ -41,18 +66,9 @@ func (this Bs) Sum() byte {
 	return b
 }
 
-func (this Bs) Copy() Bs {
-	cp := make([]byte, len(this))
-	copy(cp, this)
-	return cp
-}
-
-func (this Bs) Upper() Bs {
-	return bytes.ToUpper(this)
-}
-
-func (this Bs) Lower() Bs {
-	return bytes.ToLower(this)
+// Bytes 字节数组
+func (this Bs) Bytes() []byte {
+	return this
 }
 
 // String []{0x31,0x32} >>> "12"
@@ -65,9 +81,13 @@ func (this Bs) UTF8() string {
 	return string(this)
 }
 
-// ASCII []{0x31,0x32} >>> "12"
-func (this Bs) ASCII() string {
-	return string(this)
+// BIN 字节转2进制字符串
+func (this Bs) BIN() string {
+	return BIN(this)
+}
+
+func (this Bs) OCT() string {
+	return OCT(this)
 }
 
 // HEX []{0x01,0x02} >>> "0102"
@@ -82,12 +102,7 @@ func (this Bs) Base64() string {
 
 // HEXBase64 HEX() then Base64()
 func (this Bs) HEXBase64() string {
-	return Bs(this.HEX()).Base64()
-}
-
-// Bytes 字节数组
-func (this Bs) Bytes() []byte {
-	return this
+	return base64.StdEncoding.EncodeToString([]byte(this.HEX()))
 }
 
 // Reader io.Reader
@@ -167,24 +182,57 @@ func (this Bs) Uint64() uint64 {
 	return Uint64(this.Bytes())
 }
 
-// BINStr 字节转2进制字符串
-func (this Bs) BINStr() string {
-	return BINStr(this)
+func (this Bs) Float32() float32 {
+	return Float32(this.Bytes())
 }
 
-// BIN 字节转2进制字符串
-func (this Bs) BIN() string {
-	return BINStr(this)
+func (this Bs) Float64() float64 {
+	return Float64(this.Bytes())
 }
 
-// Append just append
-func (this Bs) Append(b ...byte) Bs {
-	return append(this, b...)
+func (this Bs) Float() float64 {
+	return Float64(this.Bytes())
+}
+
+func (this Bs) Bool() bool {
+	return Bool(this.Bytes())
+}
+
+func (this Bs) Float64frombits() float64 {
+	return math.Float64frombits(this.Uint64())
+}
+
+func (this Bs) Float32frombits() float32 {
+	return math.Float32frombits(this.Uint32())
+}
+
+// Reverse 倒序
+func (this Bs) Reverse() Bs {
+	for i := 0; i < this.Len()/2; i++ {
+		this[i], this[this.Len()-i-1] = this[this.Len()-i-1], this[i]
+	}
+	return this
+}
+
+// Add 每个字节加add
+func (this Bs) Add(add byte) Bs {
+	for i, v := range this {
+		this[i] = v + add
+	}
+	return this
+}
+
+// Sub 每个字节减sub
+func (this Bs) Sub(sub byte) Bs {
+	for i, v := range this {
+		this[i] = v - sub
+	}
+	return this
 }
 
 // UTF8ToInt []{0x31,0x32} >>> 12
 func (this Bs) UTF8ToInt() (int, error) {
-	return strconv.Atoi(this.ASCII())
+	return strconv.Atoi(this.UTF8())
 }
 
 // UTF8ToFloat64 字节utf8编码再转int,再转float64
@@ -204,64 +252,12 @@ func (this Bs) HEXToFloat64(decimals int) (float64, error) {
 	return float64(i) / math.Pow10(decimals), err
 }
 
-// Reverse 倒序
-func (this Bs) Reverse() Bs {
-	x := make([]byte, len(this))
-	for i, v := range this {
-		x[len(this)-i-1] = v
-	}
-	return x
-}
-
-// ReverseASCII 倒序再ASCII
-func (this Bs) ReverseASCII() string {
-	return this.Reverse().ASCII()
-}
-
-// ReverseHEX 倒序再hex
-func (this Bs) ReverseHEX() string {
-	return this.Reverse().HEX()
-}
-
-// ReverseBase64 倒序再base64
-func (this Bs) ReverseBase64() string {
-	return this.Reverse().Base64()
-}
-
-// AddByte 每个字节加add
-func (this Bs) AddByte(add byte) Bs {
-	result := make([]byte, len(this))
-	for _, v := range this {
-		result = append(result, v+add)
-	}
-	return result
-}
-
-// SubByte 每个字节减sub
-func (this Bs) SubByte(sub byte) Bs {
-	result := make([]byte, len(this))
-	for _, v := range this {
-		result = append(result, v-sub)
-	}
-	return result
-}
-
-// Sub0x33 每个字节减0x33
-func (this Bs) Sub0x33() Bs {
-	return this.SubByte(0x33)
-}
-
-// Add0x33 每个字节加0x33
-func (this Bs) Add0x33() Bs {
-	return this.AddByte(0x33)
-}
-
 // Sub0x33ReverseHEXToInt DLT645协议流程,先减0x33,再倒序,再转hex,再转int
 func (this Bs) Sub0x33ReverseHEXToInt() (int, error) {
-	return this.Sub0x33().Reverse().HEXToInt()
+	return this.Sub(0x33).Reverse().HEXToInt()
 }
 
 // Sub0x33ReverseHEXToFloat DLT645协议流程,先减0x33,再倒序,再转hex,再转float64
 func (this Bs) Sub0x33ReverseHEXToFloat(decimals int) (float64, error) {
-	return this.Sub0x33().Reverse().HEXToFloat64(decimals)
+	return this.Sub(0x33).Reverse().HEXToFloat64(decimals)
 }

@@ -34,11 +34,11 @@ func TestBytesToInt(t *testing.T) {
 //0000000000000000
 //00000001
 func TestBinStr(t *testing.T) {
-	t.Log(BINStr(65536))
-	t.Log(BINStr(256))
-	t.Log(BINStr(-1))
+	t.Log(BIN(65536))
+	t.Log(BIN(256))
+	t.Log(BIN(-1))
 	for i := 0; i < 10; i++ {
-		t.Log(BINStr(i))
+		t.Log(BIN(i))
 	}
 }
 
@@ -46,15 +46,15 @@ func TestInt64ToBinStr(t *testing.T) {
 	t.Log(Uint64(-1))
 	t.Log(Uint64(-2))
 	t.Log(uint64(18446744073709551616 / 2))
-	t.Log(BINStr(20))
-	t.Log(BINStr(1000))
-	t.Log(BINStr(-2))
-	t.Log(BINStr(-1))
-	t.Log(BINStr(-256))
-	t.Log(BINStr(-257))
-	t.Log(BINStr(-9223372036854775807))
-	t.Log(BINStr(-9223372036854775808))
-	//t.Log(BINStr(-9223372036854775809)) //invalid
+	t.Log(BIN(20))
+	t.Log(BIN(1000))
+	t.Log(BIN(-2))
+	t.Log(BIN(-1))
+	t.Log(BIN(-256))
+	t.Log(BIN(-257))
+	t.Log(BIN(-9223372036854775807))
+	t.Log(BIN(-9223372036854775808))
+	//t.Log(BIN(-9223372036854775809)) //invalid
 }
 
 func TestBytesHEX(t *testing.T) {
@@ -65,7 +65,6 @@ func TestBytesHEX(t *testing.T) {
 	t.Log(HEXStr(uint16(1000)))
 	x := HEXStr(1999)
 	t.Log(x)
-	t.Log(HEXInt(x))
 	t.Log(Int(x))
 }
 
@@ -79,14 +78,22 @@ func TestOCT(t *testing.T) {
 
 func TestBIN(t *testing.T) {
 	t.Log(toBIN(10))
-	t.Log(BINStr(10))
-	t.Log(BINStr(-1))        //
-	t.Log(BINStr(int32(-1))) //
-	t.Log(BINStr(int8(-1)))  //11111111
+	t.Log(BIN(10))
+	t.Log(BIN(-1))        //
+	t.Log(BIN(int32(-1))) //
+	t.Log(BIN(int8(-1)))  //11111111
 	t.Log(int8(-1))
 	t.Log(Uint64(int8(-1)))
 }
 
 func TestBIN2(t *testing.T) {
-	t.Log(BINStr(-1.1))
+	t.Log(BIN(-1.1))
+}
+
+func TestBs(t *testing.T) {
+	bs := Bytes([]byte{0, 1, 2, 3, 4, 5})
+	t.Log(bs.HEX())
+	t.Log(bs.Append(6, 7, 8, 9).HEX())
+	bs.Add(1)
+	t.Log(bs.HEX())
 }

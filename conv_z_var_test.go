@@ -13,6 +13,8 @@ func TestNew(t *testing.T) {
 	t.Log(Interfaces([]*Var{
 		New(1), New("s"),
 	}))
+	t.Log(Int(New(1)))
+	t.Log(String(New("string")))
 	v := New([]byte{1, 2})
 	v2 := v.Copy()
 	v.Set("666")

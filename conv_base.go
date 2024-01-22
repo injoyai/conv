@@ -50,7 +50,7 @@ func toBytes(i interface{}) []byte {
 		}
 		return toBytes(result)
 	case *Var:
-		return toBytes(value.Val())
+		return value.Bytes()
 	}
 	if IsNumber(i) {
 		// int 类型无法解析
@@ -120,7 +120,7 @@ func toString(i interface{}) string {
 		bs, _ := ioutil.ReadAll(value)
 		return string(bs)
 	case *Var:
-		return toString(value.Val())
+		return value.String()
 	default:
 		if value == nil {
 			return ""
@@ -210,7 +210,7 @@ func toInt64(i interface{}) int64 {
 	case apiInt64:
 		return value.Int64()
 	case *Var:
-		return toInt64(value.Val())
+		return value.Int64()
 	default:
 		s := toString(value)
 		base := int64(1)
@@ -299,7 +299,7 @@ func toUint64(i interface{}) uint64 {
 	case apiUint64:
 		return value.Uint64()
 	case *Var:
-		return toUint64(value.Val())
+		return value.Uint64()
 	default:
 		s := toString(value)
 		// HEX 十六进制
@@ -349,7 +349,7 @@ func toFloat64(i interface{}) float64 {
 		}
 		return math.Float64frombits(binary.BigEndian.Uint64(padding(value, 8)))
 	case *Var:
-		return toFloat64(value.Val())
+		return value.Float64()
 	default:
 		v, _ := strconv.ParseFloat(toString(i), 64)
 		return v
@@ -369,7 +369,7 @@ func toBool(i interface{}) bool {
 	case apiBool:
 		return value.Bool()
 	case *Var:
-		return toBool(value.Val())
+		return value.Bool()
 	default:
 		rv := reflect.ValueOf(i)
 		switch rv.Kind() {

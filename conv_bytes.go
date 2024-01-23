@@ -57,6 +57,14 @@ func (this Bs) WriteTo(w io.Writer) (int64, error) {
 	return int64(n), err
 }
 
+// Equal 判断2个字节数组是否一致
+func (this Bs) Equal(bs []byte) bool {
+	if (this == nil) != (bs == nil) {
+		return false
+	}
+	return bytes.Equal(this, bs)
+}
+
 // Sum 校验和
 func (this Bs) Sum() byte {
 	b := byte(0)
@@ -113,15 +121,6 @@ func (this Bs) Reader() io.Reader {
 // Buffer bytes.Buffer
 func (this Bs) Buffer() *bytes.Buffer {
 	return bytes.NewBuffer(this.Bytes())
-}
-
-// SumByte 累加转byte
-func (this Bs) SumByte() byte {
-	b := byte(0)
-	for _, v := range this {
-		b += v
-	}
-	return b
 }
 
 // GetFirst 获取第一个元素,不存在返回0

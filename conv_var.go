@@ -24,10 +24,6 @@ func (this *Var) Set(i interface{}) {
 	this.Value = i
 }
 
-func (this *Var) Copy() *Var {
-	return New(Copy(this.Value))
-}
-
 func (this *Var) IsDefault() bool {
 	return IsDefault(this.Value)
 }
@@ -300,4 +296,12 @@ func (this *Var) DMap(def ...interface{}) *Map {
 		return NewMap(def[0])
 	}
 	return NewMap(this.Value)
+}
+
+func (this *Var) Copy() *Var {
+	return New(Copy(this.Value))
+}
+
+func (this *Var) Unmarshal(ptr interface{}) error {
+	return Unmarshal(this.Value, ptr)
 }

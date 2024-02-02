@@ -26,6 +26,8 @@ var (
 		"false": {},
 		"close": {},
 		"关":     {},
+		"否":     {},
+		"假":     {},
 	}
 	octMap = map[uint64]string{
 		0: "0", 1: "1", 2: "2", 3: "3",
@@ -632,6 +634,7 @@ func copyStruct(result reflect.Value, original reflect.Value) error {
 		return nil
 	}
 
+	//判断是否分配内存空间,并分配
 	if reflect.DeepEqual(result.Interface(), reflect.Zero(result.Type()).Interface()) {
 		result.Set(reflect.New(result.Type()).Elem())
 	}
@@ -683,6 +686,7 @@ func copyStruct(result reflect.Value, original reflect.Value) error {
 	return nil
 }
 
+// copySlice 会覆盖原有数据,同json
 func copySlice(result, original reflect.Value) error {
 	if result.Kind() != reflect.Slice {
 		return nil
@@ -690,9 +694,7 @@ func copySlice(result, original reflect.Value) error {
 
 	switch original.Kind() {
 	case reflect.Slice:
-		if result.IsNil() {
-			result.Set(reflect.MakeSlice(result.Type(), original.Len(), original.Cap()))
-		}
+		result.Set(reflect.MakeSlice(result.Type(), original.Len(), original.Cap()))
 		for i := 0; i < original.Len(); i++ {
 			if err := copyValue(result.Index(i), original.Index(i)); err != nil {
 				return err
@@ -700,7 +702,6 @@ func copySlice(result, original reflect.Value) error {
 		}
 
 	default:
-		//会覆盖原数据,同json
 		result.Set(reflect.MakeSlice(result.Type(), 1, 1))
 		if err := copyValue(result.Index(0), original); err != nil {
 			return err

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -515,4 +516,327 @@ func toSMap(i interface{}) map[string]string {
 	m := make(map[string]string)
 	_ = json.Unmarshal(Bytes(i), &m)
 	return m
+}
+
+// unmarshal 任意类型解析到ptr
+// 切片类型会覆盖原有数据,字典和结构类型会保留原有字段,同json解析
+func unmarshal(i, ptr interface{}) error {
+	if i == nil || ptr == nil {
+		return nil
+	}
+
+	valValue := reflect.ValueOf(i)
+	valType := reflect.TypeOf(i)
+	ptrValue := reflect.ValueOf(ptr)
+	ptrType := reflect.TypeOf(ptr)
+
+	if ptrType.Kind() != reflect.Ptr {
+		return errors.New("参数(ptr)需要指针类型")
+	}
+
+	for ptrType.Kind() == reflect.Ptr {
+		if ptrValue.IsNil() {
+			//对为分配内存的类型,进行内存分配
+			ptrValue.Set(reflect.New(ptrType.Elem()))
+		}
+		ptrValue = ptrValue.Elem()
+		ptrType = ptrType.Elem()
+	}
+
+	for valType.Kind() == reflect.Ptr {
+		valValue = valValue.Elem()
+		valType = valType.Elem()
+	}
+
+	//判断入参是否是字符或者字节数组,并且指针是对象,字典和切片,则使用json解析
+	//入参是 "s",*[]string{} >>> *[]string{"s"} 推荐使用Strings实现
+	switch ptrType.Kind() {
+	case reflect.Struct, reflect.Map, reflect.Slice:
+		switch val := valValue.Interface().(type) {
+		case string, []byte:
+			//todo is a good idea?
+			if bs := Bytes(val); len(bs) >= 2 &&
+				(bs[0] == '[' || bs[0] == '{') &&
+				(bs[len(bs)-1] == ']' || bs[len(bs)-1] == '}') {
+				return json.Unmarshal(Bytes(val), ptr)
+			}
+		}
+	}
+
+	switch ptrType.Kind() {
+
+	case reflect.Struct:
+		return copyStruct(ptrValue, valValue)
+
+	case reflect.Map:
+		return copyMap(ptrValue, valValue)
+
+	case reflect.Slice:
+		return copySlice(ptrValue, valValue)
+
+	default:
+		//基础类型的复制
+		copyBaseKind(ptrValue, valValue)
+
+	}
+
+	return nil
+}
+
+func copyMap(result reflect.Value, original reflect.Value) error {
+	if result.Kind() != reflect.Map {
+		return nil
+	}
+
+	//声明内存空间
+	if result.IsNil() {
+		result.Set(reflect.MakeMap(result.Type()))
+	}
+
+	switch original.Kind() {
+	case reflect.Map:
+		x := original.MapRange()
+		m := make(map[reflect.Value]reflect.Value)
+		for x.Next() {
+			m[x.Key()] = x.Value()
+		}
+		for k, v := range m {
+			val := reflect.New(result.Type().Elem()).Elem()
+			if err := copyValue(val, v); err != nil {
+				return err
+			}
+			result.SetMapIndex(k, val)
+		}
+
+	case reflect.Struct:
+		for idx := 0; idx < original.NumField(); idx++ {
+			f := original.Type().Field(idx)
+			val := reflect.New(result.Type().Elem()).Elem()
+			if err := copyValue(val, original.Field(idx)); err != nil {
+				return err
+			}
+			if tag := f.Tag.Get("json"); len(tag) > 0 {
+				result.SetMapIndex(reflect.ValueOf(tag), val)
+			} else {
+				result.SetMapIndex(reflect.ValueOf(f.Name), val)
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func copyStruct(result reflect.Value, original reflect.Value) error {
+	if result.Kind() != reflect.Struct {
+		return nil
+	}
+
+	if reflect.DeepEqual(result.Interface(), reflect.Zero(result.Type()).Interface()) {
+		result.Set(reflect.New(result.Type()).Elem())
+	}
+
+	switch original.Kind() {
+	case reflect.Struct:
+		fieldMap := make(map[string]reflect.Value)
+		jsonMap := make(map[string]reflect.Value)
+		for idx := 0; idx < original.NumField(); idx++ {
+			fieldMap[original.Type().Field(idx).Name] = original.Field(idx)
+			jsonMap[original.Type().Field(idx).Tag.Get("json")] = original.Field(idx)
+		}
+		for idx := 0; idx < result.NumField(); idx++ {
+			field := result.Field(idx)
+			if field.CanSet() {
+				jsonTag := result.Type().Field(idx).Tag.Get("json")
+				if len(jsonTag) > 0 {
+					if err := copyValue(field, jsonMap[jsonTag]); err != nil {
+						return err
+					}
+				} else {
+					if err := copyValue(field, fieldMap[result.Type().Field(idx).Name]); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+	case reflect.Map:
+		x := original.MapRange()
+		m := make(map[string]interface{})
+		for x.Next() {
+			m[String(x.Key().Interface())] = x.Value().Interface()
+		}
+		for idx := 0; idx < result.NumField(); idx++ {
+			val := m[result.Type().Field(idx).Tag.Get("json")]
+			if val == nil {
+				val = m[result.Type().Field(idx).Name]
+			}
+			field := result.Field(idx)
+			if field.CanSet() {
+				if err := copyValue(field, reflect.ValueOf(val)); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func copySlice(result, original reflect.Value) error {
+	if result.Kind() != reflect.Slice {
+		return nil
+	}
+
+	switch original.Kind() {
+	case reflect.Slice:
+		if result.IsNil() {
+			result.Set(reflect.MakeSlice(result.Type(), original.Len(), original.Cap()))
+		}
+		for i := 0; i < original.Len(); i++ {
+			if err := copyValue(result.Index(i), original.Index(i)); err != nil {
+				return err
+			}
+		}
+
+	default:
+		//会覆盖原数据,同json
+		result.Set(reflect.MakeSlice(result.Type(), 1, 1))
+		if err := copyValue(result.Index(0), original); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+func copyValue(result, original reflect.Value) error {
+	if !result.CanAddr() {
+		return nil
+	}
+	if !original.IsValid() {
+		return nil
+	}
+	if !original.CanInterface() {
+		return nil
+	}
+	return unmarshal(original.Interface(), result.Addr().Interface())
+}
+
+// copyBaseKind 基础类型的复制
+func copyBaseKind(result, original reflect.Value) {
+	if result.Kind() == original.Kind() {
+		if result.CanSet() {
+			result.Set(original)
+		}
+		return
+	}
+	switch result.Kind() {
+	case reflect.Interface:
+		//这里注意,会改变result的类型,为original的类型
+		if result.CanSet() {
+			result.Set(original)
+		}
+
+	case reflect.String:
+		copyBaseKind(result, reflect.ValueOf(String(original.Interface())))
+
+	case reflect.Bool:
+		copyBaseKind(result, reflect.ValueOf(Bool(original.Interface())))
+
+	case reflect.Int:
+		copyBaseKind(result, reflect.ValueOf(Int(original.Interface())))
+
+	case reflect.Int8:
+		copyBaseKind(result, reflect.ValueOf(Int8(original.Interface())))
+
+	case reflect.Int16:
+		copyBaseKind(result, reflect.ValueOf(Int16(original.Interface())))
+
+	case reflect.Int32:
+		copyBaseKind(result, reflect.ValueOf(Int32(original.Interface())))
+
+	case reflect.Int64:
+		copyBaseKind(result, reflect.ValueOf(Int64(original.Interface())))
+
+	case reflect.Uint:
+		copyBaseKind(result, reflect.ValueOf(Uint(original.Interface())))
+
+	case reflect.Uint8:
+		copyBaseKind(result, reflect.ValueOf(Uint8(original.Interface())))
+
+	case reflect.Uint16:
+		copyBaseKind(result, reflect.ValueOf(Uint16(original.Interface())))
+
+	case reflect.Uint32:
+		copyBaseKind(result, reflect.ValueOf(Uint32(original.Interface())))
+
+	case reflect.Uint64:
+		copyBaseKind(result, reflect.ValueOf(Uint64(original.Interface())))
+
+	case reflect.Float32:
+		copyBaseKind(result, reflect.ValueOf(Float32(original.Interface())))
+
+	case reflect.Float64:
+		copyBaseKind(result, reflect.ValueOf(Float64(original.Interface())))
+
+	case reflect.Complex64, reflect.Complex128,
+		reflect.Chan, reflect.Func,
+		reflect.Invalid, reflect.UnsafePointer,
+		reflect.Struct, reflect.Map, reflect.Slice:
+		//这些类型暂时还不支持
+	}
+}
+
+// copySameKind 递归复制值，处理指针的情况
+func copySameKind(result, original reflect.Value) {
+	if result.Kind() != original.Kind() {
+		return
+	}
+
+	switch original.Kind() {
+	case reflect.Ptr:
+		// 如果是指针，则递归复制指针指向的内容
+		// result的值暂时还是nil,无需判断
+		if !original.IsNil() {
+			result.Set(reflect.New(original.Type().Elem()))
+			copySameKind(result.Elem(), original.Elem())
+		}
+
+	case reflect.Struct:
+		// 如果是结构体，则递归复制结构体的字段
+		for i := 0; i < original.NumField(); i++ {
+			if result.Field(i).CanSet() {
+				copySameKind(result.Field(i), original.Field(i))
+			}
+		}
+
+	case reflect.Map:
+		if !original.IsNil() {
+			// 如果是映射，则创建新的映射并递归复制键值对
+			result.Set(reflect.MakeMap(original.Type()))
+			for _, key := range original.MapKeys() {
+				destKey := reflect.New(key.Type()).Elem()
+				copySameKind(destKey, key)
+				destValue := reflect.New(original.MapIndex(key).Type()).Elem()
+				copySameKind(destValue, original.MapIndex(key))
+				result.SetMapIndex(destKey, destValue)
+			}
+		}
+
+	case reflect.Slice:
+		if !original.IsNil() {
+			// 如果是切片，则创建新的切片并递归复制元素
+			result.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
+			for i := 0; i < original.Len(); i++ {
+				copySameKind(result.Index(i), original.Index(i))
+			}
+		}
+
+	default:
+
+		result.Set(original)
+
+	}
 }

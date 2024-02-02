@@ -2,6 +2,7 @@ package conv
 
 import (
 	"encoding/hex"
+	"fmt"
 	"reflect"
 )
 
@@ -203,6 +204,16 @@ func HEXStr(i interface{}) string {
 	return hex.EncodeToString(Bytes(i))
 }
 
+// Unmarshal 任意类型i转到ptr
+func Unmarshal(i interface{}, ptr interface{}) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%v", e)
+		}
+	}()
+	return unmarshal(i, ptr)
+}
+
 // Copy 复制任意数据
 func Copy(i interface{}) interface{} {
 	if i == nil {
@@ -219,49 +230,7 @@ func Copy(i interface{}) interface{} {
 	default:
 		original := reflect.ValueOf(i)
 		result := reflect.New(original.Type()).Elem()
-		copyValue(result, original)
+		copySameKind(result, original)
 		return result.Interface()
-	}
-}
-
-// copyValue 递归复制值，处理指针的情况
-func copyValue(result, original reflect.Value) {
-	switch original.Kind() {
-	case reflect.Ptr:
-		// 如果是指针，则递归复制指针指向的内容
-		// result的值暂时还是nil,无需判断
-		if !original.IsNil() {
-			result.Set(reflect.New(original.Type().Elem()))
-			copyValue(result.Elem(), original.Elem())
-		}
-	case reflect.Struct:
-		// 如果是结构体，则递归复制结构体的字段
-		for i := 0; i < original.NumField(); i++ {
-			if result.Field(i).CanSet() {
-				copyValue(result.Field(i), original.Field(i))
-			}
-		}
-	case reflect.Map:
-		if !original.IsNil() {
-			// 如果是映射，则创建新的映射并递归复制键值对
-			result.Set(reflect.MakeMap(original.Type()))
-			for _, key := range original.MapKeys() {
-				destKey := reflect.New(key.Type()).Elem()
-				copyValue(destKey, key)
-				destValue := reflect.New(original.MapIndex(key).Type()).Elem()
-				copyValue(destValue, original.MapIndex(key))
-				result.SetMapIndex(destKey, destValue)
-			}
-		}
-	case reflect.Slice:
-		if !original.IsNil() {
-			// 如果是切片，则创建新的切片并递归复制元素
-			result.Set(reflect.MakeSlice(original.Type(), original.Len(), original.Cap()))
-			for i := 0; i < original.Len(); i++ {
-				copyValue(result.Index(i), original.Index(i))
-			}
-		}
-	default:
-		result.Set(original)
 	}
 }

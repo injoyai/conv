@@ -222,3 +222,215 @@ func (this *testA) Set(s string) {
 func (this *testA) Print() {
 	log.Println(this.s)
 }
+
+func Test_unmarshal(t *testing.T) {
+	type (
+		_any    interface{}
+		_struct struct {
+			A string
+		}
+		_map map[string]interface{}
+	)
+
+	valList := []interface{}{
+		nil, "a", 1, true, 1.02, _any(8), _any(nil), _struct{}, _map{"s": 1.1}, _map(nil),
+	}
+
+	{
+		t.Log("=============测试String=============")
+		for _, v := range valList {
+			ptr := "s"
+			if err := unmarshal(v, &ptr); err != nil {
+				t.Error(err)
+				return
+			}
+			t.Logf("%T(%#v) > %T(%#v)", v, v, ptr, ptr)
+			if v != nil && String(ptr) != String(v) {
+				t.Error("测试失败,结果不一致")
+				return
+			}
+			t.Log("测试通过---")
+		}
+		t.Log("=============测试结束=============")
+	}
+
+	{
+		t.Log("=============测试Int=============")
+		for _, v := range valList {
+			ptr := 8
+			if err := unmarshal(v, &ptr); err != nil {
+				t.Error(err)
+				return
+			}
+			t.Logf("%T(%#v) > %T(%#v)", v, v, ptr, ptr)
+			if v != nil && Int(ptr) != Int(v) {
+				t.Error("测试失败,结果不一致")
+				return
+			}
+			t.Log("测试通过---")
+		}
+	}
+
+	{
+		t.Log("=============测试Slice=============")
+		for _, v := range valList {
+			ptr := []string{"5"}
+			if err := unmarshal(v, &ptr); err != nil {
+				t.Error(err)
+				return
+			}
+			t.Logf("%T(%#v) > %T(%#v)", v, v, ptr, ptr)
+			if v != nil && String(Strings(ptr)) != String(Strings(v)) {
+				t.Error("测试失败,结果不一致", String(Strings(v)), " != ", String(Strings(ptr)))
+				return
+			}
+			t.Log("测试通过---")
+		}
+	}
+
+	t.Log("=============测试全部结束=============")
+}
+
+func Test_MapToStruct(t *testing.T) {
+	m := map[string]interface{}{
+		"a": 1,
+		"b": "2",
+		"c": true,
+		"d": 1.02,
+		"e": 20.1,
+		"f": 30.6,
+		"G": map[string]interface{}{
+			"h": "10",
+		},
+	}
+	type _struct struct {
+		A int     `json:"a"`
+		B string  `json:"b"`
+		C bool    `json:"c"`
+		D float64 `json:"d"`
+		E float64
+		F string `json:"f"`
+		G struct {
+			H int `json:"h"`
+		}
+	}
+	{
+		x := new(_struct)
+		if err := unmarshal(m, x); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", *x)
+	}
+	{
+		var x *_struct
+		if err := unmarshal(m, &x); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", x)
+	}
+	{
+		var x **_struct
+		if err := unmarshal(m, &x); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", *x)
+	}
+}
+
+func Test_StructToMap(t *testing.T) {
+	type _struct struct {
+		A int     `json:"a"`
+		B string  `json:"b"`
+		C bool    `json:"c"`
+		D float64 `json:"d"`
+		E float64
+		F string `json:"f"`
+		G struct {
+			H int `json:"h"`
+		}
+	}
+	x := _struct{
+		A: 1,
+		B: "2",
+		C: true,
+		D: 1.02,
+		E: 20.1,
+		F: "30.6",
+		G: struct {
+			H int `json:"h"`
+		}{
+			H: 10,
+		},
+	}
+	{
+		m := map[string]interface{}{}
+		if err := unmarshal(x, &m); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m)
+	}
+	{
+		m := map[string]string{}
+		if err := unmarshal(x, &m); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m)
+	}
+	{
+		if err := unmarshal(x, nil); err != nil {
+			t.Error(err)
+			return
+		}
+	}
+}
+
+func Test_MapToMap(t *testing.T) {
+	m := map[string]interface{}{
+		"a": 1,
+		"b": "2",
+		"c": true,
+		"d": 1.02,
+		"e": 20.1,
+		"f": 30.6,
+		"G": map[string]interface{}{
+			"h": "10",
+		},
+	}
+	{
+		m2 := map[string]string(nil)
+		if err := unmarshal(m, &m2); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m2)
+	}
+	{
+		var m2 map[string]string
+		if err := unmarshal(m, &m2); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m2)
+	}
+	{
+		var m2 map[interface{}]string
+		if err := unmarshal(m, &m2); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m2)
+	}
+	{
+		m2 := map[interface{}]string{1: "1"}
+		if err := unmarshal(m, &m2); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", m2)
+	}
+}

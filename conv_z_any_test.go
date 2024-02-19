@@ -314,6 +314,18 @@ func Test_MapToStruct(t *testing.T) {
 			H int `json:"h"`
 		}
 	}
+	type _struct2 struct {
+		A int    `json:"a"`
+		B string `json:"b"`
+	}
+	{
+		x := &_struct2{A: 100}
+		if err := unmarshal(m, x); err != nil {
+			t.Error(err)
+			return
+		}
+		t.Logf("%#v", *x)
+	}
 	{
 		x := new(_struct)
 		if err := unmarshal(m, x); err != nil {

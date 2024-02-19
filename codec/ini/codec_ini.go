@@ -1,6 +1,8 @@
 package ini
 
 import (
+	"bytes"
+	"errors"
 	"gopkg.in/ini.v1"
 	"strings"
 )
@@ -10,8 +12,20 @@ type Ini struct {
 }
 
 func (i Ini) Marshal(v interface{}) ([]byte, error) {
-	//todo
-	return nil, nil
+	m, ok := v.(map[string]map[string]string)
+	if !ok {
+		return nil, errors.New("type error: not map[string]map[string]string")
+	}
+	cfg := ini.Empty(i.LoadOptions)
+	for k, v := range m {
+		s := cfg.Section(k)
+		for vk, vv := range v {
+			s.Key(vk).SetValue(vv)
+		}
+	}
+	buf := bytes.NewBuffer(nil)
+	_, err := cfg.WriteTo(buf)
+	return buf.Bytes(), err
 }
 
 func (i Ini) Unmarshal(data []byte, v interface{}) error {
@@ -31,7 +45,7 @@ func (i Ini) Unmarshal(data []byte, v interface{}) error {
 	for _, section := range cfg.Sections() {
 		cm := *m
 		for _, k := range strings.Split(section.Name(), ".") {
-			if section.Name() == "DEFAULT" {
+			if section.Name() == ini.DefaultSection {
 				break
 			}
 			if cm[k] == nil {

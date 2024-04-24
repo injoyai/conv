@@ -35,7 +35,6 @@ func Test_newVal(t *testing.T) {
 	t.Log(DMap(s).GetString("A"))
 	t.Log(GMap(s)["A"])
 	t.Log(GMap(s)["B"])
-	t.Log(val.Map())
 	t.Log(val.Get("A").Var)
 	t.Log(val.Get("A").String())
 	t.Logf("%#v\n", val.Get("A"))
@@ -86,16 +85,80 @@ func Test_Map(t *testing.T) {
 			t.Error("错误")
 		}
 	}
+	{
+		s := `{"c":["a","b","c","d"]}`
+		x := NewMap(s)
+		x.Set("c[1]", "bb")
+		t.Log(x.String())
+		x.Set("c[100]", "c100")
+		t.Log(x.String())
+		x.Set("c[3]", `{"a":1,"b":2}`)
+		t.Log(x.String())
+		t.Log(x.GetString("c[3].a"))
+		t.Log(x.Get("c").String())
+		x.Set("b", `{"a":1,"b":2}`)
+		t.Log(x.String())
+		x.Set("c[2]", map[string]interface{}{
+			"aa": 1,
+			"bb": true,
+			"cc": 1.02,
+			"dd": []interface{}{12, 10.3, false, true, "999"},
+			"ee": map[string]interface{}{
+				"aaa": map[interface{}]interface{}{
+					100: 101, "102": 103, 104.1: 105, true: false,
+				},
+			},
+		})
+		t.Log(x.String())
+		t.Log(x.GetString("c[2].dd[1]"))
+		t.Log(x.GetString("c[2].ee.aaa"))
+		t.Log(x.GetString("c[2].ee.aaa.100"))
+		t.Log(x.GetString("c[2].ee.aaa.104.1")) //小数点不支持,和分隔符冲突了
+		t.Log(x.GetString("c[2].ee.aaa.true"))
+	}
 
+	{
+		s := `{"c":["a","b","c","d"]}`
+		x := NewMap(s)
+		x.Append("c", "e", "ee", "eee")
+		t.Log(x.String())
+		t.Log(x.GetString("c"))
+	}
+
+}
+
+func Test_Map3(t *testing.T) {
+	{
+		s := `{"c":["a","b","c","d"]}`
+		x := NewMap(s)
+		x.Append("c", "e", "ee", "eee")
+		t.Log(x.String())
+		t.Log(x.GetString("c"))
+		t.Log(x.GetString("c[6]"))
+		x.Append("d", 0, 1, 2, 3)
+		t.Log(x.String())
+		x.Append("e")
+		x.Append("f", 0)
+		t.Log(x.String())
+		x.Append("e", 1)
+		t.Log(x.String())
+		t.Log(x.GetString("e[0]"))
+		x.Set("f", map[string]interface{}{"aa": 1, "bb": 2})
+		t.Log(x.String())
+		x.Append("f", 1, 2, 3)
+		x.Set("g", nil)
+		t.Log(x.String())
+	}
 }
 
 func Test_Map2(t *testing.T) {
 	x := NewMap(s)
-	a := x.Map()["A"]
-	b := a.List()[0]
-	t.Log(b.GetString("a"))
-	t.Log(a.GetString("[0]"))
-	t.Log(a.GetString("[0].a"))
+	list := x.Get("A")
+	object := list.Get("[0]")
+	t.Log(object.GetString("a"))   //"1"
+	t.Log(object.GetString("[0]")) //""
+	t.Log(list.GetString("[0]"))   //{"a":1,"b":2}
+	t.Log(list.GetString("[0].a")) //"1"
 
 }
 

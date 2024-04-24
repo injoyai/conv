@@ -148,6 +148,17 @@ func Test_Map3(t *testing.T) {
 		x.Append("f", 1, 2, 3)
 		x.Set("g", nil)
 		t.Log(x.String())
+		x.Del("c[0]")
+		x.Del("c[-1]")
+		x.Del("d[0]")
+		x.Del("d[-1]")
+		x.Del("e[0]")
+		x.Del("d[10]")
+		x.Del("f.aa")
+		x.Del("g")
+		t.Log(x.String())
+		x.Del("c")
+		t.Log(x.String())
 	}
 }
 

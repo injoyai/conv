@@ -153,6 +153,38 @@
 
   ```
 
+## 如何使用Map
+
+- Map能一直深入解析数据,直到不能解析,目前支持Json,Ini,Toml,Yaml,Xml
+
+  ```go
+  
+      package main
+  
+      func main(){
+          //假设有这么一个数据
+          data :=`{"a":{"b":[0,1,2,3],"c":{"d":"d"}}}`
+  
+          //转成Map类型,不设置的话默认使用json解析
+          m :=conv.NewMap(data)
+  
+          
+          m.GetString("a.b[3]") //得到"3"
+  
+          m.Append("a.b","4") 
+          fmt.Println(m) //输出 {"a":{"b":[0,1,2,3,"4"],"c":{"d":"d"}}}
+  
+          m.Set("c.d":[]int{1,2,3})
+          fmt.Println(m) //输出 {"a":{"b":[0,1,2,3,"4"],"c":{"d":[1,2,3]}}}
+  
+          m.Del("c.d[0]")
+          m.Del("c.d[-1]")
+          fmt.Println(m) //输出 {"a":{"b":[0,1,2,3,"4"],"c":{"d":[2]}}}
+  
+      }
+  
+  ```
+
 ## 如何使用cfg
 
 - cfg包是读取配置,能够读取到每一层级,默认解析JSON,读取位置(./config/config.json)

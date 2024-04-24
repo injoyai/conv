@@ -29,13 +29,15 @@ func newMap(i interface{}, codec ...codec.Interface) *Map {
 // Map deep 惰性解析 DMap
 // 万次解析0.09s
 type Map struct {
-	*Var                   //值
-	Extend                 //继承
-	object map[string]*Map //对象实例
-	array  []*Map          //数组实例
-	codec  codec.Interface //编解码
-	once   sync.Once       //惰性加载,解析一次
-	hasSet bool            //设置了新数据
+	*Var                    //值
+	Extend                  //继承
+	isArray bool            //是否是对象,否则是列表,用于处理内容为空时,显示[]还是{}的情况
+	object  map[string]*Map //对象实例
+	array   []*Map          //数组实例
+	codec   codec.Interface //编解码
+	once    sync.Once       //惰性加载,解析一次
+	decoded bool
+	hasSet  bool //设置了新数据
 }
 
 // GetVar 实现Extend的接口,继承Extend的接口
@@ -116,8 +118,9 @@ func (this *Map) Append(key string, value ...interface{}) *Map {
 			data = data.getArray(k)
 		}
 	}
-	if len(data.object) == 0 {
-		//假如不是对象的情况下生效
+	if data.isArray || len(data.object) == 0 {
+		//假如不是对象的情况下生效,或者对象是空的情况
+		data.isArray = true
 		for _, v := range value {
 			data.array = append(data.array, newMap(v, this.codec))
 		}
@@ -125,6 +128,32 @@ func (this *Map) Append(key string, value ...interface{}) *Map {
 		data.Var.Set(data.encode())
 	}
 	return this
+}
+
+func (this *Map) Del(key string) {
+	data := this
+	keys := this.getKeys(key)
+	for i, v := range this.getKeys(key) {
+		//所有的父级都打上标记,方便后续判断
+		data.hasSet = true
+		if i == len(keys)-1 {
+			switch k := v.(type) {
+			case string:
+				delete(data.object, k)
+			case int:
+				if idx := data.getIndex(k); idx >= 0 {
+					data.array = append(data.array[:idx], data.array[idx+1:]...)
+				}
+			}
+			break
+		}
+		switch k := v.(type) {
+		case string:
+			data = data.getObject(k, false)
+		case int:
+			data = data.getArray(k)
+		}
+	}
 }
 
 // String 重构下Var的String函数,针对Set/Append后的惰性更新
@@ -156,7 +185,7 @@ func (this *Map) getKeys(key string) []interface{} {
 	for _, v := range strings.Split(key, ".") {
 		indexList := []interface{}(nil)
 		length := 0
-		for _, k := range regexp.MustCompile(`\[[0-9]+\]`).FindAllString(v, -1) {
+		for _, k := range regexp.MustCompile(`\[[\-0-9]+\]`).FindAllString(v, -1) {
 			length += len(k)
 			//去除[]后的数字,即数组的下标
 			indexList = append(indexList, Int(k[1:len(k)-1]))
@@ -197,6 +226,17 @@ func (this *Map) getArray(idx int) *Map {
 	return NewMap(nil, this.codec)
 }
 
+func (this *Map) getIndex(idx int) int {
+	if idx >= 0 && idx < len(this.array) {
+		return idx
+	}
+	//对负数的支持,例如-1表示获取数组的最后一个元素,参考python
+	if idx < 0 && -idx <= len(this.array) {
+		return len(this.array) + idx
+	}
+	return -1
+}
+
 // 获取编解码函数
 func (this *Map) getParse() func(data []byte, v interface{}) error {
 	if this.codec == nil {
@@ -209,7 +249,8 @@ func (this *Map) getParse() func(data []byte, v interface{}) error {
 }
 
 func (this *Map) decode() *Map {
-	this.once.Do(func() {
+	if !this.decoded {
+		this.decoded = true
 		parse := this.getParse()
 		this.object = make(map[string]*Map)
 		if !this.Var.IsNil() {
@@ -223,6 +264,7 @@ func (this *Map) decode() *Map {
 					this.object[String(i)] = newMap(v, codec.Json)
 				}
 			case []interface{}:
+				this.isArray = true
 				for _, v := range val {
 					this.array = append(this.array, newMap(v, codec.Json))
 				}
@@ -236,6 +278,7 @@ func (this *Map) decode() *Map {
 				} else {
 					var list []interface{}
 					if err := parse(bs, &list); err == nil {
+						this.isArray = true
 						for _, v := range list {
 							this.array = append(this.array, newMap(v, codec.Json))
 						}
@@ -245,7 +288,7 @@ func (this *Map) decode() *Map {
 			}
 		}
 		this.Extend = NewExtend(this)
-	})
+	}
 	return this
 }
 
@@ -256,24 +299,25 @@ func (this *Map) encode() interface{} {
 		return this.Var.Val()
 	}
 
-	if len(this.array) > 0 {
+	//未解析的数据,返回原始数据
+	if !this.decoded {
+		return this.Var.Val()
+	}
+
+	if this.isArray {
 		//数组
-		list := []interface{}(nil)
+		list := make([]interface{}, 0)
 		for _, v := range this.array {
 			list = append(list, v.encode())
 		}
 		return list
 	}
 
-	if len(this.object) > 0 {
-		//对象
-		object := map[string]interface{}{}
-		for k, v := range this.object {
-			object[k] = v.encode()
-		}
-		return object
+	//对象
+	object := map[string]interface{}{}
+	for k, v := range this.object {
+		object[k] = v.encode()
 	}
-
-	return this.Var.Val()
+	return object
 
 }

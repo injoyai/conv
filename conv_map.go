@@ -136,6 +136,7 @@ func (this *Map) Del(key string) {
 	for i, v := range this.getKeys(key) {
 		//所有的父级都打上标记,方便后续判断
 		data.hasSet = true
+		//当key是最后一个时候,进行删除对象键或者删除数组元素操作
 		if i == len(keys)-1 {
 			switch k := v.(type) {
 			case string:
@@ -147,6 +148,7 @@ func (this *Map) Del(key string) {
 			}
 			break
 		}
+		//层层向下取值
 		switch k := v.(type) {
 		case string:
 			data = data.getObject(k, false)
@@ -216,12 +218,9 @@ func (this *Map) getObject(key string, setIfNotExist bool) *Map {
 // 根据下标获取数组的元素,支持python的负数下标,
 // 例如-1表示获取数组的最后一个元素
 func (this *Map) getArray(idx int) *Map {
-	if idx >= 0 && idx < len(this.array) {
+	//处理负数(支持)等情况,
+	if idx = this.getIndex(idx); idx >= 0 {
 		return this.array[idx].decode()
-	}
-	//对负数的支持,例如-1表示获取数组的最后一个元素,参考python
-	if idx < 0 && -idx <= len(this.array) {
-		return this.array[len(this.array)+idx].decode()
 	}
 	return NewMap(nil, this.codec)
 }
@@ -238,7 +237,7 @@ func (this *Map) getIndex(idx int) int {
 }
 
 // 获取编解码函数
-func (this *Map) getParse() func(data []byte, v interface{}) error {
+func (this *Map) getUnmarshal() func(data []byte, v interface{}) error {
 	if this.codec == nil {
 		if codec.Default != nil {
 			return codec.Default.Unmarshal
@@ -251,7 +250,7 @@ func (this *Map) getParse() func(data []byte, v interface{}) error {
 func (this *Map) decode() *Map {
 	if !this.decoded {
 		this.decoded = true
-		parse := this.getParse()
+		parse := this.getUnmarshal()
 		this.object = make(map[string]*Map)
 		if !this.Var.IsNil() {
 			switch val := this.Var.Val().(type) {

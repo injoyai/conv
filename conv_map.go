@@ -5,7 +5,6 @@ import (
 	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"
-	"sync"
 )
 
 // NewMap 新建数据
@@ -35,9 +34,8 @@ type Map struct {
 	object  map[string]*Map //对象实例
 	array   []*Map          //数组实例
 	codec   codec.Interface //编解码
-	once    sync.Once       //惰性加载,解析一次
-	decoded bool
-	hasSet  bool //设置了新数据
+	decoded bool            //惰性加载,解析一次
+	hasSet  bool            //设置了新数据
 }
 
 // GetVar 实现Extend的接口,继承Extend的接口

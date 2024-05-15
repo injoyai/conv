@@ -58,8 +58,24 @@ func WithPath(path string, codec ...codec.Interface) *Entity {
 	return data
 }
 
-func New(path string, codec ...codec.Interface) *Entity {
-	return WithPath(path, codec...)
+func New(filename string, codec ...codec.Interface) *Entity {
+	return WithPath(filename, codec...)
+}
+
+func NewYaml(filename string) *Entity {
+	return New(filename, codec.Yaml)
+}
+
+func NewJson(filename string) *Entity {
+	return New(filename, codec.Json)
+}
+
+func NewToml(filename string) *Entity {
+	return New(filename, codec.Toml)
+}
+
+func NewIni(filename string) *Entity {
+	return New(filename, codec.Ini)
 }
 
 // Reread 重新读取配置

@@ -111,6 +111,8 @@ func toString(i interface{}) string {
 		return string(value)
 	case time.Time:
 		return value.String()
+	case time.Duration:
+		return value.String()
 	case apiString:
 		return value.String()
 	case apiError:
@@ -243,7 +245,7 @@ func toInt64(i interface{}) int64 {
 		}
 		// 时间戳
 		if d, err := time.ParseDuration(s); err == nil {
-			return int64(d)
+			return int64(d) * base
 		}
 		// Float64
 		return int64(toFloat64(value))

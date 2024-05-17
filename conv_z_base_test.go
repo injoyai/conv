@@ -34,3 +34,7 @@ func Test_copySlice(t *testing.T) {
 	}
 
 }
+
+func Test_toInt64(t *testing.T) {
+	t.Log(toInt64("-1h1m1s1ms1ns"))
+}

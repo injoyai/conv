@@ -12,7 +12,7 @@ func Byte(i interface{}) byte {
 }
 
 // Bytes 任意类型转 []byte.
-func Bytes(i interface{}) Bs {
+func Bytes(i interface{}) []byte {
 	return toBytes(i)
 }
 

@@ -9,6 +9,10 @@ import (
 	"strconv"
 )
 
+func NewBs(i interface{}) Bs {
+	return Bytes(i)
+}
+
 type Bs []byte
 
 func (this Bs) Var() *Var {

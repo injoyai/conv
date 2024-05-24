@@ -91,9 +91,9 @@ func TestBIN2(t *testing.T) {
 }
 
 func TestBs(t *testing.T) {
-	bs := Bytes([]byte{0, 1, 2, 3, 4, 5})
-	t.Log(bs.HEX())
-	t.Log(bs.Append(6, 7, 8, 9).HEX())
+	bs := NewBs([]byte{0, 1, 2, 3, 4, 5})
+	t.Log(bs.HEX())                    // 000102030405
+	t.Log(bs.Append(6, 7, 8, 9).HEX()) // 00010203040506070809
 	bs.Add(1)
-	t.Log(bs.HEX())
+	t.Log(bs.HEX()) //010203040506
 }

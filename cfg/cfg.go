@@ -7,9 +7,11 @@ import (
 	"time"
 )
 
-var (
-	Default = New("./config/config.json")
-)
+var Default = New("./config/config.json")
+
+func Init(filename string, codec ...codec.Interface) {
+	Default = New(filename, codec...)
+}
 
 type Entity struct {
 	err error
@@ -161,4 +163,8 @@ func GetHour(key string, def ...int) time.Duration {
 // GetMap 读取map[string]interface{}类型
 func GetMap(key string, def ...map[string]interface{}) map[string]interface{} {
 	return Default.GetGMap(key, def...)
+}
+
+func GetInterfaces(key string, def ...[]interface{}) []interface{} {
+	return Default.GetInterfaces(key, def...)
 }

@@ -228,13 +228,13 @@ func toInt64(i interface{}) int64 {
 			}
 		}
 		// HEX 十六进制
-		if len(s) > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X') {
+		if len(s) > 2 && strings.ToLower(s[0:2]) == "0x" {
 			if v, err := strconv.ParseInt(s[2:], 16, 64); err == nil {
 				return v * base
 			}
 		}
 		// BIN 二进制
-		if len(s) > 2 && s[0] == '0' && (s[1] == 'b' || s[1] == 'B') {
+		if len(s) > 2 && strings.ToLower(s[0:2]) == "0b" {
 			if v, err := strconv.ParseInt(s[2:], 2, 64); err == nil {
 				return v * base
 			}

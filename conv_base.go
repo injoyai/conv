@@ -207,7 +207,7 @@ func toInt64(i interface{}) int64 {
 		}
 		return result
 	case time.Time:
-		return value.Unix()
+		return value.UnixNano()
 	case time.Duration:
 		return int64(value)
 	case apiInt:
@@ -299,6 +299,10 @@ func toUint64(i interface{}) uint64 {
 			}
 		}
 		return result
+	case time.Time:
+		return uint64(value.UnixNano())
+	case time.Duration:
+		return uint64(value)
 	case apiUint:
 		return uint64(value.Uint())
 	case apiUint64:
@@ -322,6 +326,10 @@ func toUint64(i interface{}) uint64 {
 		// DEC 十进制
 		if v, err := strconv.ParseUint(s, 10, 64); err == nil {
 			return v
+		}
+		// 时间戳
+		if d, err := time.ParseDuration(s); err == nil {
+			return uint64(d)
 		}
 		// Float64
 		return uint64(toFloat64(value))

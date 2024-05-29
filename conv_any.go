@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"reflect"
+	"time"
 )
 
 // Byte 任意类型转 byte.
@@ -150,6 +151,11 @@ func Interfaces(i interface{}) []interface{} {
 // Array 任意类型转 []Interface.
 func Array(i interface{}) []interface{} {
 	return toInterfaces(i)
+}
+
+// Duration 任意类型转 time.Duration
+func Duration(i interface{}) time.Duration {
+	return time.Duration(Int64(i))
 }
 
 // BINBool 任意类型转二进制 []bool 返回长度8的倍数且大于0,true代表二进制的1.

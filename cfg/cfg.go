@@ -165,6 +165,10 @@ func GetMap(key string, def ...map[string]interface{}) map[string]interface{} {
 	return Default.GetGMap(key, def...)
 }
 
+func GetDMap(key string, def ...interface{}) *conv.Map {
+	return Default.GetDMap(key, def...)
+}
+
 func GetInterfaces(key string, def ...[]interface{}) []interface{} {
 	return Default.GetInterfaces(key, def...)
 }

@@ -243,7 +243,7 @@ func toInt64(i interface{}) int64 {
 		if v, err := strconv.ParseInt(s, 10, 64); err == nil {
 			return v * base
 		}
-		// 时间戳
+		// 时间
 		if d, err := time.ParseDuration(s); err == nil {
 			return int64(d) * base
 		}

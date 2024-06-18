@@ -38,12 +38,12 @@ type Extend interface {
 	GetFloat32(key string, def ...float32) float32
 	GetFloat64(key string, def ...float64) float64
 	GetBool(key string, def ...bool) bool
-	GetDuration(key string, def ...int) time.Duration
-	GetMicrosecond(key string, def ...int) time.Duration
-	GetMillisecond(key string, def ...int) time.Duration
-	GetSecond(key string, def ...int) time.Duration
-	GetMinute(key string, def ...int) time.Duration
-	GetHour(key string, def ...int) time.Duration
+	GetDuration(key string, def ...time.Duration) time.Duration
+	GetMicrosecond(key string, def ...time.Duration) time.Duration
+	GetMillisecond(key string, def ...time.Duration) time.Duration
+	GetSecond(key string, def ...time.Duration) time.Duration
+	GetMinute(key string, def ...time.Duration) time.Duration
+	GetHour(key string, def ...time.Duration) time.Duration
 	GetErr(key string, def ...error) error
 	GetGMap(key string, def ...map[string]interface{}) map[string]interface{}
 	GetSMap(key string, def ...map[string]string) map[string]string
@@ -199,27 +199,27 @@ func (this *extend) GetBool(key string, def ...bool) bool {
 	return this.GetVar(key).Bool(def...)
 }
 
-func (this *extend) GetDuration(key string, def ...int) time.Duration {
+func (this *extend) GetDuration(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Duration(def...)
 }
 
-func (this *extend) GetMicrosecond(key string, def ...int) time.Duration {
+func (this *extend) GetMicrosecond(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Microsecond(def...)
 }
 
-func (this *extend) GetMillisecond(key string, def ...int) time.Duration {
+func (this *extend) GetMillisecond(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Millisecond(def...)
 }
 
-func (this *extend) GetSecond(key string, def ...int) time.Duration {
+func (this *extend) GetSecond(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Second(def...)
 }
 
-func (this *extend) GetMinute(key string, def ...int) time.Duration {
+func (this *extend) GetMinute(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Minute(def...)
 }
 
-func (this *extend) GetHour(key string, def ...int) time.Duration {
+func (this *extend) GetHour(key string, def ...time.Duration) time.Duration {
 	return this.GetVar(key).Hour(def...)
 }
 

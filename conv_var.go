@@ -229,30 +229,30 @@ func (this *Var) Bool(def ...bool) bool {
 	return Bool(this.Value)
 }
 
-func (this *Var) Duration(def ...int) time.Duration {
+func (this *Var) Duration(def ...time.Duration) time.Duration {
 	if this.IsNil() && len(def) > 0 {
-		return time.Duration(def[0])
+		return def[0]
 	}
 	return time.Duration(this.Int64())
 }
 
-func (this *Var) Microsecond(def ...int) time.Duration {
+func (this *Var) Microsecond(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Microsecond
 }
 
-func (this *Var) Millisecond(def ...int) time.Duration {
+func (this *Var) Millisecond(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Millisecond
 }
 
-func (this *Var) Second(def ...int) time.Duration {
+func (this *Var) Second(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Second
 }
 
-func (this *Var) Minute(def ...int) time.Duration {
+func (this *Var) Minute(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Minute
 }
 
-func (this *Var) Hour(def ...int) time.Duration {
+func (this *Var) Hour(def ...time.Duration) time.Duration {
 	return this.Duration(def...) * time.Hour
 }
 

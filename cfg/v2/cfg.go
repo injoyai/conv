@@ -2,97 +2,36 @@ package cfg
 
 import (
 	"github.com/injoyai/conv"
-	"github.com/injoyai/conv/codec"
-	"io/ioutil"
 	"time"
 )
 
-var Default = New("./config/config.json")
+var Default = New(WithFile("./config/config.yaml"))
 
-func Init(filename string, codec ...codec.Interface) {
-	Default = New(filename, codec...)
+func Init(i ...conv.IGetVar) { Default = New(i...) }
+
+func New(i ...conv.IGetVar) *Entity {
+	c := &Entity{}
+	for _, v := range i {
+		if v != nil {
+			c.list = append(c.list, conv.NewExtend(v))
+		}
+	}
+	c.Extend = conv.NewExtend(c)
+	return c
 }
 
 type Entity struct {
-	err error
-	*conv.Map
-	reread func() *Entity
+	list []conv.Extend
+	conv.Extend
 }
 
-func (this *Entity) Reread() *Entity {
-	x := this.reread()
-	if x.err == nil {
-		this.Map = x.Map
+func (this *Entity) GetVar(key string) *conv.Var {
+	for _, v := range this.list {
+		if val := v.GetVar(key); !val.IsNil() {
+			return val
+		}
 	}
-	return this
-}
-
-func (this *Entity) String() string {
-	if this.err != nil {
-		return this.err.Error()
-	}
-	return this.Map.Var.String()
-}
-
-func (this *Entity) Err() error {
-	return this.err
-}
-
-func WithAny(v interface{}, codec ...codec.Interface) *Entity {
-	data := &Entity{}
-	data.Map = conv.NewMap(v, codec...)
-	data.reread = func() *Entity {
-		return WithAny(v, codec...)
-	}
-	return data
-}
-
-func WithPath(path string, codec ...codec.Interface) *Entity {
-	data := &Entity{}
-	bs, err := ioutil.ReadFile(path)
-	if err != nil {
-		data.err = err
-	}
-	data.Map = conv.NewMap(bs, codec...)
-	data.reread = func() *Entity {
-		return WithPath(path, codec...)
-	}
-	return data
-}
-
-func New(filename string, codec ...codec.Interface) *Entity {
-	return WithPath(filename, codec...)
-}
-
-func NewYaml(filename string) *Entity {
-	return New(filename, codec.Yaml)
-}
-
-func NewJson(filename string) *Entity {
-	return New(filename, codec.Json)
-}
-
-func NewToml(filename string) *Entity {
-	return New(filename, codec.Toml)
-}
-
-func NewIni(filename string) *Entity {
-	return New(filename, codec.Ini)
-}
-
-// Reread 重新读取配置
-func Reread() *Entity {
-	return Default.Reread()
-}
-
-// Get 获取value类型数据
-func Get(key string) *conv.Map {
-	return Default.Get(key)
-}
-
-// GetVar 获取var类型数据
-func GetVar(key string) *conv.Var {
-	return Default.GetVar(key)
+	return conv.Nil()
 }
 
 // GetString 读取string类型数据,其它类型可转string类型,复杂的类型会转json

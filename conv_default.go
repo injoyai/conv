@@ -47,7 +47,7 @@ func GetDefaultErr(def error, param ...error) error {
 }
 
 func GetDefaultDuration(def time.Duration, param ...time.Duration) time.Duration {
-	return GetDefault(Interfaces(param)...).Duration(int(def))
+	return GetDefault(Interfaces(param)...).Duration(def)
 }
 
 /*
@@ -129,5 +129,5 @@ func DefaultErr(def error, param ...error) error {
 }
 
 func DefaultDuration(def time.Duration, param ...time.Duration) time.Duration {
-	return Default(Interfaces(param)...).Duration(int(def))
+	return Default(Interfaces(param)...).Duration(def)
 }

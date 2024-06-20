@@ -8,7 +8,7 @@ import (
 func main() {
 	cfg.Init(
 		cfg.WithFlag(&cfg.Flag{Name: "a"}),
-		cfg.WithJson("./testdata/config.json"),
+		cfg.WithFile("./testdata/config.yaml"),
 	)
 	log.Println(cfg.GetInt("child[0].time"))
 	log.Println(cfg.GetDuration("child[0].time"))

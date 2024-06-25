@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var Default = New(WithFile("./config/config.yaml"))
+var Default = New(WithDefaultFile())
 
 func Init(i ...conv.IGetVar) { Default = New(i...) }
 

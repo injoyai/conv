@@ -12,6 +12,10 @@ func WithAny(i interface{}, codec ...codec.Interface) conv.IGetVar {
 	return conv.NewMap(i, codec...)
 }
 
+func WithDefaultFile() conv.IGetVar {
+	return WithFile("./config/config.yaml")
+}
+
 func WithFile(filename string, codecs ...codec.Interface) conv.IGetVar {
 	bs, err := ioutil.ReadFile(filename)
 	if err != nil {

@@ -22,10 +22,11 @@ var (
 )
 
 func Get(s string) Interface {
+	s = strings.TrimLeft(s, ".")
 	switch strings.ToLower(s) {
 	case "json":
 		return Json
-	case "yaml":
+	case "yaml", "yml":
 		return Yaml
 	case "toml":
 		return Toml

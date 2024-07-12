@@ -4,7 +4,6 @@ import (
 	"flag"
 	"github.com/injoyai/conv"
 	"os"
-	"strings"
 	"sync"
 )
 
@@ -19,15 +18,7 @@ func WithFlag(flags ...*Flag) conv.IGetVar {
 		for _, v := range flags {
 			f.String(v.Name, conv.String(v.Default), v.Usage)
 		}
-		args := []string(nil)
-		n := 1
-		for i := range os.Args {
-			if strings.HasPrefix(os.Args[i], "-") || i-n == 1 {
-				args = append(args, os.Args[i])
-				n = i
-			}
-		}
-		f.Parse(args)
+		f.Parse(os.Args[1:])
 		defaultFlags = f
 	})
 	return defaultFlags

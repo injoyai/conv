@@ -211,13 +211,13 @@ func HEXStr(i interface{}) string {
 }
 
 // Unmarshal 任意类型i转到ptr
-func Unmarshal(i interface{}, ptr interface{}) (err error) {
+func Unmarshal(i interface{}, ptr interface{}, param ...UnmarshalParam) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
 		}
 	}()
-	return unmarshal(i, ptr)
+	return unmarshal(i, ptr, param...)
 }
 
 // Copy 复制任意数据

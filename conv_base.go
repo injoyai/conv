@@ -532,7 +532,7 @@ func toSMap(i interface{}) map[string]string {
 
 // unmarshal 任意类型解析到ptr
 // 切片类型会覆盖原有数据,字典和结构类型会保留原有字段,同json解析
-func unmarshal(i, ptr interface{}) error {
+func unmarshal(i, ptr interface{}, param ...UnmarshalParam) error {
 	if i == nil || ptr == nil {
 		return nil
 	}
@@ -578,10 +578,10 @@ func unmarshal(i, ptr interface{}) error {
 	switch ptrType.Kind() {
 
 	case reflect.Struct:
-		return copyStruct(ptrValue, valValue)
+		return copyStruct(ptrValue, valValue, param...)
 
 	case reflect.Map:
-		return copyMap(ptrValue, valValue)
+		return copyMap(ptrValue, valValue, param...)
 
 	case reflect.Slice:
 		return copySlice(ptrValue, valValue)
@@ -595,7 +595,7 @@ func unmarshal(i, ptr interface{}) error {
 	return nil
 }
 
-func copyMap(result reflect.Value, original reflect.Value) error {
+func copyMap(result reflect.Value, original reflect.Value, params ...UnmarshalParam) error {
 	if result.Kind() != reflect.Map {
 		return nil
 	}
@@ -627,11 +627,25 @@ func copyMap(result reflect.Value, original reflect.Value) error {
 			if err := copyValue(val, original.Field(idx)); err != nil {
 				return err
 			}
-			if tag := f.Tag.Get("json"); len(tag) > 0 {
-				result.SetMapIndex(reflect.ValueOf(tag), val)
-			} else {
-				result.SetMapIndex(reflect.ValueOf(f.Name), val)
+
+			// 解析对象,尝试映射tag上,默认用字段的tag(json)
+			tags := []string{"json"}
+			if len(params) > 0 {
+				tags = params[0].Tags
 			}
+
+			var key string
+			var hasTag bool
+			for _, tag := range tags {
+				if key, hasTag = f.Tag.Lookup(tag); hasTag {
+					break
+				}
+			}
+			if !hasTag {
+				key = f.Name
+			}
+			//用对象的字段名称
+			result.SetMapIndex(reflect.ValueOf(key), val)
 		}
 
 	}
@@ -639,7 +653,7 @@ func copyMap(result reflect.Value, original reflect.Value) error {
 	return nil
 }
 
-func copyStruct(result reflect.Value, original reflect.Value) error {
+func copyStruct(result reflect.Value, original reflect.Value, param ...UnmarshalParam) error {
 	if result.Kind() != reflect.Struct {
 		return nil
 	}
@@ -649,44 +663,75 @@ func copyStruct(result reflect.Value, original reflect.Value) error {
 		result.Set(reflect.New(result.Type()).Elem())
 	}
 
+	//尝试通过tag映射的key,默认tag的key为json
+	tags := []string{"json"}
+	if len(param) > 0 {
+		tags = param[0].Tags
+	}
+
 	switch original.Kind() {
 	case reflect.Struct:
 		fieldMap := make(map[string]reflect.Value)
-		jsonMap := make(map[string]reflect.Value)
+		tagMaps := make([]map[string]reflect.Value, len(tags))
 		for idx := 0; idx < original.NumField(); idx++ {
+			//保存字段对应的值
 			fieldMap[original.Type().Field(idx).Name] = original.Field(idx)
-			jsonMap[original.Type().Field(idx).Tag.Get("json")] = original.Field(idx)
+			//查看原始对象数据的字段是否存在预期的tag,存在则保存tag和对应的字段值
+			for tagIndex, tag := range tags {
+				if key, ok := original.Type().Field(idx).Tag.Lookup(tag); ok {
+					if tagMaps[tagIndex] == nil {
+						tagMaps[tagIndex] = make(map[string]reflect.Value)
+					}
+					tagMaps[tagIndex][key] = original.Field(idx)
+				}
+			}
 		}
 		for idx := 0; idx < result.NumField(); idx++ {
-			field := result.Field(idx)
-			if field.CanSet() {
-				jsonTag := result.Type().Field(idx).Tag.Get("json")
-				if len(jsonTag) > 0 {
-					if err := copyValue(field, jsonMap[jsonTag]); err != nil {
-						return err
+			if field := result.Field(idx); field.CanSet() {
+				var val reflect.Value
+				var hasTagValue bool
+				//获取写入对象的tag,遍历tag,是否有预期的tag,例如json
+				for tagIndex, tag := range tags {
+					if key, hasTag := result.Type().Field(idx).Tag.Lookup(tag); hasTag {
+						if val, hasTagValue = tagMaps[tagIndex][key]; hasTagValue {
+							break
+						}
 					}
-				} else {
-					if err := copyValue(field, fieldMap[result.Type().Field(idx).Name]); err != nil {
-						return err
-					}
+				}
+				//从tag的key获取不到对应的值,再尝试通过对象结构的字段名
+				if !hasTagValue {
+					val = fieldMap[result.Type().Field(idx).Name]
+				}
+				if err := copyValue(field, val); err != nil {
+					return err
 				}
 			}
 		}
 
 	case reflect.Map:
 		x := original.MapRange()
-		m := make(map[string]interface{})
+		m := make(map[string]reflect.Value)
 		for x.Next() {
-			m[String(x.Key().Interface())] = x.Value().Interface()
+			m[String(x.Key().Interface())] = x.Value()
 		}
+
 		for idx := 0; idx < result.NumField(); idx++ {
-			val := m[result.Type().Field(idx).Tag.Get("json")]
-			if val == nil {
-				val = m[result.Type().Field(idx).Name]
-			}
-			field := result.Field(idx)
-			if field.CanSet() {
-				if err := copyValue(field, reflect.ValueOf(val)); err != nil {
+			if field := result.Field(idx); field.CanSet() {
+				var val reflect.Value
+				var hasTagValue bool
+				//先根据tag的key(例json),尝试获取map的值
+				for _, tag := range tags {
+					if key, hasTag := result.Type().Field(idx).Tag.Lookup(tag); hasTag {
+						if val, hasTagValue = m[key]; hasTagValue {
+							break
+						}
+					}
+				}
+				//根据tag的key获取不到map的值,再尝试通过对象结构的字段名
+				if !hasTagValue {
+					val = m[result.Type().Field(idx).Name]
+				}
+				if err := copyValue(field, val); err != nil {
 					return err
 				}
 			}
@@ -850,4 +895,8 @@ func copySameKind(result, original reflect.Value) {
 		result.Set(original)
 
 	}
+}
+
+type UnmarshalParam struct {
+	Tags []string //自定义解析tag,默认tag为json
 }

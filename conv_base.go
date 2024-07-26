@@ -614,7 +614,7 @@ func copyMap(result reflect.Value, original reflect.Value, params ...UnmarshalPa
 		}
 		for k, v := range m {
 			val := reflect.New(result.Type().Elem()).Elem()
-			if err := copyValue(val, v); err != nil {
+			if err := copyValue(val, v, params...); err != nil {
 				return err
 			}
 			result.SetMapIndex(k, val)
@@ -624,7 +624,7 @@ func copyMap(result reflect.Value, original reflect.Value, params ...UnmarshalPa
 		for idx := 0; idx < original.NumField(); idx++ {
 			f := original.Type().Field(idx)
 			val := reflect.New(result.Type().Elem()).Elem()
-			if err := copyValue(val, original.Field(idx)); err != nil {
+			if err := copyValue(val, original.Field(idx), params...); err != nil {
 				return err
 			}
 
@@ -653,7 +653,7 @@ func copyMap(result reflect.Value, original reflect.Value, params ...UnmarshalPa
 	return nil
 }
 
-func copyStruct(result reflect.Value, original reflect.Value, param ...UnmarshalParam) error {
+func copyStruct(result reflect.Value, original reflect.Value, params ...UnmarshalParam) error {
 	if result.Kind() != reflect.Struct {
 		return nil
 	}
@@ -665,8 +665,8 @@ func copyStruct(result reflect.Value, original reflect.Value, param ...Unmarshal
 
 	//尝试通过tag映射的key,默认tag的key为json
 	tags := []string{"json"}
-	if len(param) > 0 {
-		tags = param[0].Tags
+	if len(params) > 0 {
+		tags = params[0].Tags
 	}
 
 	switch original.Kind() {
@@ -702,7 +702,7 @@ func copyStruct(result reflect.Value, original reflect.Value, param ...Unmarshal
 				if !hasTagValue {
 					val = fieldMap[result.Type().Field(idx).Name]
 				}
-				if err := copyValue(field, val); err != nil {
+				if err := copyValue(field, val, params...); err != nil {
 					return err
 				}
 			}
@@ -731,7 +731,7 @@ func copyStruct(result reflect.Value, original reflect.Value, param ...Unmarshal
 				if !hasTagValue {
 					val = m[result.Type().Field(idx).Name]
 				}
-				if err := copyValue(field, val); err != nil {
+				if err := copyValue(field, val, params...); err != nil {
 					return err
 				}
 			}
@@ -742,7 +742,7 @@ func copyStruct(result reflect.Value, original reflect.Value, param ...Unmarshal
 }
 
 // copySlice 会覆盖原有数据,同json
-func copySlice(result, original reflect.Value) error {
+func copySlice(result, original reflect.Value, params ...UnmarshalParam) error {
 	if result.Kind() != reflect.Slice {
 		return nil
 	}
@@ -751,14 +751,14 @@ func copySlice(result, original reflect.Value) error {
 	case reflect.Slice:
 		result.Set(reflect.MakeSlice(result.Type(), original.Len(), original.Cap()))
 		for i := 0; i < original.Len(); i++ {
-			if err := copyValue(result.Index(i), original.Index(i)); err != nil {
+			if err := copyValue(result.Index(i), original.Index(i), params...); err != nil {
 				return err
 			}
 		}
 
 	default:
 		result.Set(reflect.MakeSlice(result.Type(), 1, 1))
-		if err := copyValue(result.Index(0), original); err != nil {
+		if err := copyValue(result.Index(0), original, params...); err != nil {
 			return err
 		}
 
@@ -767,7 +767,7 @@ func copySlice(result, original reflect.Value) error {
 	return nil
 }
 
-func copyValue(result, original reflect.Value) error {
+func copyValue(result, original reflect.Value, param ...UnmarshalParam) error {
 	if !result.CanAddr() {
 		return nil
 	}
@@ -777,7 +777,7 @@ func copyValue(result, original reflect.Value) error {
 	if !original.CanInterface() {
 		return nil
 	}
-	return unmarshal(original.Interface(), result.Addr().Interface())
+	return unmarshal(original.Interface(), result.Addr().Interface(), param...)
 }
 
 // copyBaseKind 基础类型的复制

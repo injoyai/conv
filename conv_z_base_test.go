@@ -101,7 +101,7 @@ func Test_copyMap(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			t.Logf("%#v\n", a)
+			t.Logf("%#v\n", a) //&conv.A{Name:"", Age:18, Body:false, High:170.6, Memo:"18"}
 		}
 		{
 			a := &A{}
@@ -109,7 +109,7 @@ func Test_copyMap(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			t.Logf("%#v\n", a)
+			t.Logf("%#v\n", a) //&conv.A{Name:"小明", Age:18, Body:true, High:170.6, Memo:"18"}
 		}
 
 	}

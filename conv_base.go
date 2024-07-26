@@ -532,7 +532,7 @@ func toSMap(i interface{}) map[string]string {
 
 // unmarshal 任意类型解析到ptr
 // 切片类型会覆盖原有数据,字典和结构类型会保留原有字段,同json解析
-func unmarshal(i, ptr interface{}, param ...UnmarshalParam) error {
+func unmarshal(i, ptr interface{}, params ...UnmarshalParam) error {
 	if i == nil || ptr == nil {
 		return nil
 	}
@@ -578,13 +578,13 @@ func unmarshal(i, ptr interface{}, param ...UnmarshalParam) error {
 	switch ptrType.Kind() {
 
 	case reflect.Struct:
-		return copyStruct(ptrValue, valValue, param...)
+		return copyStruct(ptrValue, valValue, params...)
 
 	case reflect.Map:
-		return copyMap(ptrValue, valValue, param...)
+		return copyMap(ptrValue, valValue, params...)
 
 	case reflect.Slice:
-		return copySlice(ptrValue, valValue)
+		return copySlice(ptrValue, valValue, params...)
 
 	default:
 		//基础类型的复制

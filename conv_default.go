@@ -57,7 +57,11 @@ func GetDefaultDuration(def time.Duration, param ...time.Duration) time.Duration
  */
 
 func Default(param ...interface{}) *Var {
-	return New(Nil().Interface(param...))
+	if len(param) > 0 {
+		return New(param[0])
+	}
+	return Nil()
+	//return New(Nil().Interface(param...))
 }
 
 func DefaultInterface(def interface{}, param ...interface{}) interface{} {

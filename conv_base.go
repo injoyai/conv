@@ -670,6 +670,13 @@ func copyStruct(result reflect.Value, original reflect.Value, params ...Unmarsha
 	}
 
 	switch original.Kind() {
+
+	case reflect.Slice:
+		//如果是数组转对象,则获取数组的第一个元素进行转换
+		if original.Len() > 0 {
+			return copyStruct(result, original.Index(0))
+		}
+
 	case reflect.Struct:
 		fieldMap := make(map[string]reflect.Value)
 		tagMaps := make([]map[string]reflect.Value, len(tags))

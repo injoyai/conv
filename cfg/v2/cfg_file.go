@@ -3,7 +3,7 @@ package cfg
 import (
 	"github.com/injoyai/conv"
 	"github.com/injoyai/conv/codec"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -16,8 +16,18 @@ func WithDefaultFile() conv.IGetVar {
 	return WithFile("./config/config.yaml")
 }
 
+func WithExecuteFile(join string, codecs ...codec.Interface) conv.IGetVar {
+	executeName, err := os.Executable()
+	if err != nil {
+		executeName = "./"
+	}
+	dir := filepath.Dir(executeName)
+	filename := filepath.Join(dir, join)
+	return WithFile(filename, codecs...)
+}
+
 func WithFile(filename string, codecs ...codec.Interface) conv.IGetVar {
-	bs, err := ioutil.ReadFile(filename)
+	bs, err := os.ReadFile(filename)
 	if err != nil {
 		//log.Println("err: ", err)
 		//return nil, err

@@ -2,6 +2,7 @@ package conv
 
 import (
 	"testing"
+	"unsafe"
 )
 
 func TestInt64ToBytes(t *testing.T) {
@@ -31,8 +32,8 @@ func TestBytesToInt(t *testing.T) {
 	}
 }
 
-//0000000000000000
-//00000001
+// 0000000000000000
+// 00000001
 func TestBinStr(t *testing.T) {
 	t.Log(BIN(65536))
 	t.Log(BIN(256))
@@ -90,10 +91,23 @@ func TestBIN2(t *testing.T) {
 	t.Log(BIN(-1.1))
 }
 
-func TestBs(t *testing.T) {
-	bs := NewBs([]byte{0, 1, 2, 3, 4, 5})
+func TestBytes2(t *testing.T) {
+	bs := Bytes2([]byte{0, 1, 2, 3, 4, 5})
 	t.Log(bs.HEX())                    // 000102030405
 	t.Log(bs.Append(6, 7, 8, 9).HEX()) // 00010203040506070809
 	bs.Add(1)
 	t.Log(bs.HEX()) //010203040506
+}
+
+func TestStringP(t *testing.T) {
+	bs1 := []byte{0, 1, 2, 3, 4, 5}
+	bs2 := Bytes2(bs1)
+	t.Logf("%p", bs1)
+	t.Logf("%p", bs2)
+	s := bs2.StringP()
+	t.Log(s)
+	bs1[0] = 0x31
+	t.Log(s)
+	t.Log(*s)
+	t.Logf("%p", (*[]byte)(unsafe.Pointer(s)))
 }

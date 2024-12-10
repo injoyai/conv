@@ -17,6 +17,11 @@ func Bytes(i interface{}) []byte {
 	return toBytes(i)
 }
 
+// BytesZ 字节拓展
+func BytesZ(i interface{}) Bytes2 {
+	return toBytes(i)
+}
+
 // Rune 任意类型转 rune.
 func Rune(i interface{}) rune {
 	return Int32(i)

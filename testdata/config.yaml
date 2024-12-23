@@ -9,3 +9,6 @@ child:
     time: 3
 a: 102
 aa: 102
+text: |
+  a: 1
+  b: 2

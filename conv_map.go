@@ -183,6 +183,9 @@ func (this *Map) refresh() *Map {
 // 获取对象的key或者数组的下标,用类型来区分,字符表示对象的key,数字表示数字的下标
 // 先分割.,再正则匹配[0-9]+,例如 a.key[1][0] ,得到 {"a","key",1,0}
 func (this *Map) getKeys(key string) []interface{} {
+	if len(key) == 0 {
+		return []interface{}{""}
+	}
 	keys := []interface{}(nil)
 	for _, v := range strings.Split(key, ".") {
 		indexList := []interface{}(nil)

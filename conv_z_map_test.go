@@ -160,6 +160,12 @@ func Test_Map3(t *testing.T) {
 		t.Log(x.String())
 		x.Del("c")
 		t.Log(x.String())
+		x.Set("x", 100)
+		t.Log(x.String())
+		x.Set("y.y[0].y", "sss")
+		t.Log(x.String())
+		x.Set("", 199)
+		t.Log(x.String())
 	}
 }
 

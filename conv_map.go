@@ -159,6 +159,8 @@ func (this *Map) Del(key string) {
 // String 重构下Var的String函数,针对Set/Append后的惰性更新
 func (this *Map) String(def ...string) string {
 	this.refresh()
+	bs, _ := this.getMarshal()(this.Var.Val())
+	return string(bs)
 	return this.Var.String(def...)
 }
 
@@ -245,39 +247,51 @@ func (this *Map) getUnmarshal() func(data []byte, v interface{}) error {
 	return this.codec.Unmarshal
 }
 
+func (this *Map) getMarshal() func(v interface{}) ([]byte, error) {
+	if this.codec == nil {
+		if codec.Default != nil {
+			return codec.Default.Marshal
+		}
+		return json.Marshal
+	}
+	return this.codec.Marshal
+}
+
 func (this *Map) decode() *Map {
 	if !this.decoded {
 		this.decoded = true
-		parse := this.getUnmarshal()
 		this.object = make(map[string]*Map)
 		if !this.Var.IsNil() {
 			switch val := this.Var.Val().(type) {
 			case map[string]interface{}:
 				for i, v := range val {
-					this.object[i] = newMap(v, codec.Json)
+					this.object[i] = newMap(v, this.codec)
 				}
 			case map[interface{}]interface{}:
 				for i, v := range val {
-					this.object[String(i)] = newMap(v, codec.Json)
+					this.object[String(i)] = newMap(v, this.codec)
 				}
 			case []interface{}:
 				this.isArray = true
 				for _, v := range val {
-					this.array = append(this.array, newMap(v, codec.Json))
+					this.array = append(this.array, newMap(v, this.codec))
 				}
+			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, bool:
+				//基础类型不用再次解析,字符串可以再次解析
 			default:
 				m := make(map[string]interface{})
-				bs := []byte(this.Var.String())
+				bs, _ := this.getMarshal()(this.Var.Val())
+				parse := this.getUnmarshal()
 				if err := parse(bs, &m); err == nil {
 					for i, v := range m {
-						this.object[String(i)] = newMap(v, codec.Json)
+						this.object[String(i)] = newMap(v, this.codec)
 					}
 				} else {
 					var list []interface{}
 					if err := parse(bs, &list); err == nil {
 						this.isArray = true
 						for _, v := range list {
-							this.array = append(this.array, newMap(v, codec.Json))
+							this.array = append(this.array, newMap(v, this.codec))
 						}
 					}
 				}

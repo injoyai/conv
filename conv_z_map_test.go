@@ -1,6 +1,7 @@
 package conv
 
 import (
+	"github.com/injoyai/conv/codec"
 	"testing"
 )
 
@@ -171,6 +172,16 @@ func Test_Map2(t *testing.T) {
 	t.Log(list.GetString("[0]"))   //{"a":1,"b":2}
 	t.Log(list.GetString("[0].a")) //"1"
 
+}
+
+func Test_Map4(t *testing.T) {
+	yaml := `name: yaml
+age: 18`
+	x := NewMap(yaml, codec.Yaml)
+	t.Log(x.GetInt("age"))
+	t.Log(x.String())
+	x.Set("high", 180)
+	t.Log(x.String())
 }
 
 // TestNewMap2 [0.67,0.58,0.62,0.59,0.60,0.57]

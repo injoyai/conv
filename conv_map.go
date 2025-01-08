@@ -283,7 +283,10 @@ func (this *Map) decode() *Map {
 				//基础类型不用再次解析,字符串可以再次解析
 			default:
 				m := make(map[string]interface{})
-				bs, _ := this.getMarshal()(this.Var.Val())
+				bs, ok := this.Var.Val().([]byte)
+				if !ok {
+					bs, _ = this.getMarshal()(this.Var.Val())
+				}
 				parse := this.getUnmarshal()
 				if err := parse(bs, &m); err == nil {
 					for i, v := range m {

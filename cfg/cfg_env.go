@@ -1,7 +1,7 @@
 package cfg
 
 import (
-	"github.com/injoyai/conv/v2"
+	"github.com/injoyai/conv"
 	"os"
 )
 

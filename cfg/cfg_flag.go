@@ -2,7 +2,7 @@ package cfg
 
 import (
 	"flag"
-	"github.com/injoyai/conv/v2"
+	"github.com/injoyai/conv"
 	"os"
 	"sync"
 )

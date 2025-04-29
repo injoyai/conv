@@ -1,10 +1,10 @@
 package codec
 
 import (
-	"github.com/injoyai/conv/v2/codec/ini"
-	"github.com/injoyai/conv/v2/codec/json"
-	"github.com/injoyai/conv/v2/codec/toml"
-	"github.com/injoyai/conv/v2/codec/yaml"
+	"github.com/injoyai/conv/codec/ini"
+	"github.com/injoyai/conv/codec/json"
+	"github.com/injoyai/conv/codec/toml"
+	"github.com/injoyai/conv/codec/yaml"
 	"strings"
 )
 

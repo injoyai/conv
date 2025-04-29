@@ -1,7 +1,7 @@
 package conv
 
 import (
-	"github.com/injoyai/conv/v2/codec"
+	"github.com/injoyai/conv/codec"
 	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"

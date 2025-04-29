@@ -1,4 +1,4 @@
-module github.com/injoyai/conv/v2
+module github.com/injoyai/conv
 
 go 1.20
 

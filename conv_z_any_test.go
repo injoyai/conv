@@ -151,10 +151,10 @@ func TestCopy(t *testing.T) {
 		}
 	}
 	{ //复制map
-		m := map[interface{}]interface{}{
+		m := map[any]any{
 			"a": 1, 12: 2,
 		}
-		m2 := Copy(m).(map[interface{}]interface{})
+		m2 := Copy(m).(map[any]any)
 		m2[true] = "hello"
 		t.Log(m)
 		t.Log(m2)
@@ -162,7 +162,7 @@ func TestCopy(t *testing.T) {
 			t.Error("不带指针的Map,测试未通过")
 		}
 		//带指针的map
-		m3 := *(Copy(&m).(*map[interface{}]interface{}))
+		m3 := *(Copy(&m).(*map[any]any))
 		m3[true] = "hello"
 		t.Log(m)
 		t.Log(m3)
@@ -172,12 +172,12 @@ func TestCopy(t *testing.T) {
 
 	}
 	{ //空指针
-		m := map[interface{}]interface{}(nil)
-		m2 := Copy(m).(map[interface{}]interface{})
+		m := map[any]any(nil)
+		m2 := Copy(m).(map[any]any)
 		t.Log(m == nil)
 		t.Log(m2 == nil)
-		s := []interface{}(nil)
-		s2 := Copy(s).([]interface{})
+		s := []any(nil)
+		s2 := Copy(s).([]any)
 		t.Log(s == nil)
 		t.Log(s2 == nil)
 		a := (*testA)(nil)
@@ -225,14 +225,14 @@ func (this *testA) Print() {
 
 func Test_unmarshal(t *testing.T) {
 	type (
-		_any    interface{}
+		_any    any
 		_struct struct {
 			A string
 		}
-		_map map[string]interface{}
+		_map map[string]any
 	)
 
-	valList := []interface{}{
+	valList := []any{
 		nil, "a", 1, true, 1.02, _any(8), _any(nil), _struct{}, _map{"s": 1.1}, _map(nil),
 	}
 
@@ -292,14 +292,14 @@ func Test_unmarshal(t *testing.T) {
 }
 
 func Test_MapToStruct(t *testing.T) {
-	m := map[string]interface{}{
+	m := map[string]any{
 		"a": 1,
 		"b": "2",
 		"c": true,
 		"d": 1.02,
 		"e": 20.1,
 		"f": 30.6,
-		"G": map[string]interface{}{
+		"G": map[string]any{
 			"h": "10",
 		},
 	}
@@ -378,7 +378,7 @@ func Test_StructToMap(t *testing.T) {
 		},
 	}
 	{
-		m := map[string]interface{}{}
+		m := map[string]any{}
 		if err := unmarshal(x, &m); err != nil {
 			t.Error(err)
 			return
@@ -402,14 +402,14 @@ func Test_StructToMap(t *testing.T) {
 }
 
 func Test_MapToMap(t *testing.T) {
-	m := map[string]interface{}{
+	m := map[string]any{
 		"a": 1,
 		"b": "2",
 		"c": true,
 		"d": 1.02,
 		"e": 20.1,
 		"f": 30.6,
-		"G": map[string]interface{}{
+		"G": map[string]any{
 			"h": "10",
 		},
 	}
@@ -430,7 +430,7 @@ func Test_MapToMap(t *testing.T) {
 		t.Logf("%#v", m2)
 	}
 	{
-		var m2 map[interface{}]string
+		var m2 map[any]string
 		if err := unmarshal(m, &m2); err != nil {
 			t.Error(err)
 			return
@@ -438,7 +438,7 @@ func Test_MapToMap(t *testing.T) {
 		t.Logf("%#v", m2)
 	}
 	{
-		m2 := map[interface{}]string{1: "1"}
+		m2 := map[any]string{1: "1"}
 		if err := unmarshal(m, &m2); err != nil {
 			t.Error(err)
 			return

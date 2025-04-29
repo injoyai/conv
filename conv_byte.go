@@ -5,7 +5,7 @@ import (
 )
 
 // toBIN 二进制,返回8倍数大于0长度bool数组,true代表1 根据类型确定长度
-func toBIN(i interface{}) (result []bool) {
+func toBIN(i any) (result []bool) {
 	bit := IntSize
 	switch value := i.(type) {
 	case int8, uint8:
@@ -36,7 +36,7 @@ func toBIN(i interface{}) (result []bool) {
 }
 
 // toOCT int64转8进制,长度22
-func toOCT(i interface{}) (result string) {
+func toOCT(i any) (result string) {
 	number := Uint64(i)
 	oct := uint64(8)
 	for ; number > 0; number /= oct {

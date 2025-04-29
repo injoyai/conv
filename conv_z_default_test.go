@@ -5,16 +5,16 @@ import (
 )
 
 func TestGetDefaultString(t *testing.T) {
-	t.Log(GetDefaultString("test"))
-	t.Log(GetDefaultString("test", "a"))
-	t.Log(GetDefaultString("test", "a", "b"))
+	t.Log(Default[string]("test"))
+	t.Log(Default[string]("test", "a"))
+	t.Log(Default[string]("test", "a", "b"))
 }
 
 func TestGetDefaultBool(t *testing.T) {
-	t.Log(GetDefaultBool(true))
-	t.Log(GetDefaultBool(true, false))
-	t.Log(GetDefaultBool(true, true))
-	t.Log(GetDefaultBool(false, true))
-	t.Log(GetDefaultBool(false, false))
-	t.Log(GetDefaultBool(false, true, true))
+	t.Log(Default[bool](true))
+	t.Log(Default[bool](true, false))
+	t.Log(Default[bool](true, true))
+	t.Log(Default[bool](false, true))
+	t.Log(Default[bool](false, false))
+	t.Log(Default[bool](false, true, true))
 }

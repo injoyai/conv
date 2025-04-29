@@ -11,7 +11,7 @@ type Ini struct {
 	LoadOptions ini.LoadOptions
 }
 
-func (i Ini) Marshal(v interface{}) ([]byte, error) {
+func (i Ini) Marshal(v any) ([]byte, error) {
 	m, ok := v.(map[string]map[string]string)
 	if !ok {
 		return nil, errors.New("type error: not map[string]map[string]string")
@@ -28,9 +28,9 @@ func (i Ini) Marshal(v interface{}) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-func (i Ini) Unmarshal(data []byte, v interface{}) error {
+func (i Ini) Unmarshal(data []byte, v any) error {
 
-	m, ok := v.(*map[string]interface{})
+	m, ok := v.(*map[string]any)
 	if !ok {
 		return nil
 	}
@@ -49,10 +49,10 @@ func (i Ini) Unmarshal(data []byte, v interface{}) error {
 				break
 			}
 			if cm[k] == nil {
-				x := map[string]interface{}{}
+				x := map[string]any{}
 				cm[k] = x
 			}
-			cm = cm[k].(map[string]interface{})
+			cm = cm[k].(map[string]any)
 		}
 		for _, k := range section.Keys() {
 			cm[k.Name()] = k.Value()

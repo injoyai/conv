@@ -30,16 +30,16 @@ func TestIni_Marshal(t *testing.T) {
 	}
 	{
 		i := Ini{}
-		bs, err := i.Marshal(map[string]interface{}{
-			"a": map[string]interface{}{
+		bs, err := i.Marshal(map[string]any{
+			"a": map[string]any{
 				"b": "c",
 				"f": "g",
 			},
-			"b": map[string]interface{}{
+			"b": map[string]any{
 				"b": "c",
 				"f": "g",
 			},
-			"": map[string]interface{}{
+			"": map[string]any{
 				"d": 1,
 				"f": 2,
 			},

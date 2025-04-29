@@ -36,7 +36,7 @@ var (
 )
 
 // toBytes 任意类型转 []byte.
-func toBytes(i interface{}) []byte {
+func toBytes(i any) []byte {
 	if i == nil {
 		return []byte{}
 	}
@@ -74,7 +74,7 @@ func toBytes(i interface{}) []byte {
 }
 
 // toString 任意类型转 string.
-func toString(i interface{}) string {
+func toString(i any) string {
 	if i == nil {
 		return ""
 	}
@@ -158,7 +158,7 @@ func toString(i interface{}) string {
 }
 
 // toInt64 任意类型转 int64.
-func toInt64(i interface{}) int64 {
+func toInt64(i any) int64 {
 	if i == nil {
 		return 0
 	}
@@ -253,7 +253,7 @@ func toInt64(i interface{}) int64 {
 }
 
 // toUint64 任意类型转 uint64.
-func toUint64(i interface{}) uint64 {
+func toUint64(i any) uint64 {
 	if i == nil {
 		return 0
 	}
@@ -337,7 +337,7 @@ func toUint64(i interface{}) uint64 {
 }
 
 // toFloat64 任意类型转 float64.
-func toFloat64(i interface{}) float64 {
+func toFloat64(i any) float64 {
 	if i == nil {
 		return 0
 	}
@@ -370,7 +370,7 @@ func toFloat64(i interface{}) float64 {
 }
 
 // toBool 任意类型转 bool.
-func toBool(i interface{}) bool {
+func toBool(i any) bool {
 	if i == nil {
 		return false
 	}
@@ -402,58 +402,58 @@ func toBool(i interface{}) bool {
 	}
 }
 
-// toInterfaces 任意类型转 []interface{}.
-func toInterfaces(i interface{}) []interface{} {
+// toInterfaces 任意类型转 []any.
+func toInterfaces(i any) []any {
 	if i == nil {
 		return nil
 	}
-	if r, ok := i.([]interface{}); ok {
+	if r, ok := i.([]any); ok {
 		return r
 	}
-	var array []interface{}
+	var array []any
 	switch value := i.(type) {
 	case []string:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []int:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []int8:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []int16:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []int32:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []int64:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []uint:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []uint8:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []uint16:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
@@ -462,31 +462,31 @@ func toInterfaces(i interface{}) []interface{} {
 			array = append(array, v)
 		}
 	case []uint64:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []bool:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []float32:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case []float64:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v
 		}
 	case apiInterfaces:
 		return value.Interfaces()
 	case *Var:
-		return []interface{}{value.Val()}
+		return []any{value.Val()}
 	case []*Var:
-		array = make([]interface{}, len(value))
+		array = make([]any, len(value))
 		for k, v := range value {
 			array[k] = v.Val()
 		}
@@ -501,30 +501,30 @@ func toInterfaces(i interface{}) []interface{} {
 		}
 		switch kind {
 		case reflect.Slice, reflect.Array:
-			array = make([]interface{}, rv.Len())
+			array = make([]any, rv.Len())
 			for i := 0; i < rv.Len(); i++ {
 				array[i] = rv.Index(i).Interface()
 			}
 		default:
-			return []interface{}{i}
+			return []any{i}
 		}
 	}
 	return array
 }
 
-func toGMap(i interface{}) map[string]interface{} {
-	m := make(map[string]interface{})
+func toGMap(i any) map[string]any {
+	m := make(map[string]any)
 	_ = json.Unmarshal(Bytes(i), &m)
 	return m
 }
 
-func toIMap(i interface{}) map[interface{}]interface{} {
-	m := make(map[interface{}]interface{})
+func toIMap(i any) map[any]any {
+	m := make(map[any]any)
 	_ = json.Unmarshal(Bytes(i), &m)
 	return m
 }
 
-func toSMap(i interface{}) map[string]string {
+func toSMap(i any) map[string]string {
 	m := make(map[string]string)
 	_ = json.Unmarshal(Bytes(i), &m)
 	return m
@@ -532,7 +532,7 @@ func toSMap(i interface{}) map[string]string {
 
 // unmarshal 任意类型解析到ptr
 // 切片类型会覆盖原有数据,字典和结构类型会保留原有字段,同json解析
-func unmarshal(i, ptr interface{}, params ...UnmarshalParam) error {
+func unmarshal(i, ptr any, params ...UnmarshalParam) error {
 	if i == nil || ptr == nil {
 		return nil
 	}

@@ -6,12 +6,12 @@ import (
 )
 
 // IsDefault 是否是默认值
-func IsDefault(i interface{}) bool {
+func IsDefault(i any) bool {
 	return IsZero(i)
 }
 
 // IsZero 是否是默认值
-func IsZero(i interface{}) bool {
+func IsZero(i any) bool {
 	if i == nil {
 		return true
 	}
@@ -30,18 +30,18 @@ func IsZero(i interface{}) bool {
 }
 
 // IsNumber 是否是数字类型
-func IsNumber(i interface{}) bool {
+func IsNumber(i any) bool {
 	return IsInt(i) || IsFloat(i)
 }
 
 // IsString 是否是字符串
-func IsString(i interface{}) bool {
+func IsString(i any) bool {
 	_, ok := GetNature(i).(string)
 	return ok
 }
 
 // IsInt 是否是整数类型
-func IsInt(i interface{}) bool {
+func IsInt(i any) bool {
 	switch GetNature(i).(type) {
 	case int,
 		int8,
@@ -59,7 +59,7 @@ func IsInt(i interface{}) bool {
 }
 
 // IsFloat 是否是浮点类型
-func IsFloat(i interface{}) bool {
+func IsFloat(i any) bool {
 	switch GetNature(i).(type) {
 	case float32,
 		float64:
@@ -69,19 +69,19 @@ func IsFloat(i interface{}) bool {
 }
 
 // IsBool 是否是布尔类型
-func IsBool(i interface{}) bool {
+func IsBool(i any) bool {
 	_, ok := GetNature(i).(bool)
 	return ok
 }
 
 // IsTime 是否是时间类型
-func IsTime(i interface{}) bool {
+func IsTime(i any) bool {
 	_, ok := GetNature(i).(time.Time)
 	return ok
 }
 
 // IsArray 是否是数组
-func IsArray(i interface{}) bool {
+func IsArray(i any) bool {
 	switch GetNatureKind(i) {
 	case reflect.Slice, reflect.Array:
 		return true
@@ -90,22 +90,22 @@ func IsArray(i interface{}) bool {
 }
 
 // IsPointer 是否是指针
-func IsPointer(i interface{}) bool {
+func IsPointer(i any) bool {
 	return GetNatureKind(i) == reflect.Ptr
 }
 
 // IsNil 是否是nil
-func IsNil(i interface{}) bool {
+func IsNil(i any) bool {
 	return i == nil
 }
 
 // GetNatureKind 获取kind(无指针)
-func GetNatureKind(i interface{}) reflect.Kind {
+func GetNatureKind(i any) reflect.Kind {
 	return reflect.ValueOf(GetNature(i)).Kind()
 }
 
 // GetNature 去除指针
-func GetNature(i interface{}) interface{} {
+func GetNature(i any) any {
 	if i != nil {
 		r := reflect.ValueOf(i)
 		kind := r.Kind()

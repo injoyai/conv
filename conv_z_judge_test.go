@@ -10,16 +10,16 @@ func TestIsDefault(t *testing.T) {
 	t.Log(IsDefault(""))
 	t.Log(IsDefault(struct{ Name string }{}))
 	t.Log(IsDefault(make(map[string]string)))
-	t.Log(IsDefault(map[string]interface{}{"name": "test"}))
+	t.Log(IsDefault(map[string]any{"name": "test"}))
 	t.Log(IsDefault([]string{}))
 	t.Log(IsDefault([]string{"a"}))
 	var a []string
 	t.Log(IsDefault(a))
-	var m map[string]interface{}
+	var m map[string]any
 	t.Log(IsDefault(m))
-	t.Log(IsDefault(&map[string]interface{}{"name": "test"}))
-	t.Log(IsDefault(&map[string]interface{}{}))
-	t.Log(IsDefault(map[string]interface{}{}))
+	t.Log(IsDefault(&map[string]any{"name": "test"}))
+	t.Log(IsDefault(&map[string]any{}))
+	t.Log(IsDefault(map[string]any{}))
 
 	t.Log(IsDefault(struct{ Name string }{}))
 	t.Log(IsDefault(struct {

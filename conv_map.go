@@ -1,7 +1,7 @@
 package conv
 
 import (
-	"github.com/injoyai/conv/codec"
+	"github.com/injoyai/conv/v2/codec"
 	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"
@@ -9,12 +9,12 @@ import (
 
 // NewMap 新建数据
 // 递归(惰性,用到才解析)获取所有可以解析数据
-func NewMap(i interface{}, codec ...codec.Interface) *Map {
+func NewMap(i any, codec ...codec.Interface) *Map {
 	//一般用NewMap之后,肯定会获取值的,固直接decode
 	return newMap(i, codec...).decode()
 }
 
-func newMap(i interface{}, codec ...codec.Interface) *Map {
+func newMap(i any, codec ...codec.Interface) *Map {
 	if val, ok := i.(*Map); ok {
 		return val
 	}
@@ -28,14 +28,14 @@ func newMap(i interface{}, codec ...codec.Interface) *Map {
 // Map deep 惰性解析 DMap
 // 万次解析0.09s
 type Map struct {
-	*Var                    //值
-	Extend                  //继承
-	isArray bool            //是否是对象,否则是列表,用于处理内容为空时,显示[]还是{}的情况
-	object  map[string]*Map //对象实例
-	array   []*Map          //数组实例
-	codec   codec.Interface //编解码
-	decoded bool            //惰性加载,解析一次
-	hasSet  bool            //设置了新数据
+	*Var                           //值
+	Extend[string]                 //继承
+	isArray        bool            //是否是对象,否则是列表,用于处理内容为空时,显示[]还是{}的情况
+	object         map[string]*Map //对象实例
+	array          []*Map          //数组实例
+	codec          codec.Interface //编解码
+	decoded        bool            //惰性加载,解析一次
+	hasSet         bool            //设置了新数据
 }
 
 // GetVar 实现Extend的接口,继承Extend的接口
@@ -82,7 +82,7 @@ func (this *Map) Get(key string) *Map {
 // 假如对象key不存在,会自动添加
 // 如果数组的下标不存在,则不会自动添加,例如设置了下标100,补充99个nil值不是很合理
 // 如果设置了nil,对应json的null
-func (this *Map) Set(key string, value interface{}) *Map {
+func (this *Map) Set(key string, value any) *Map {
 	data := this
 	for _, v := range this.getKeys(key) {
 		//所有的父级都打上标记,方便后续判断
@@ -104,7 +104,7 @@ func (this *Map) Set(key string, value interface{}) *Map {
 // 例如 {"a":{"n":1},"b":[0,1]} 使用Append("b",3,4)后,得到 {"a":{"n":1},"b":[0,1,3,4]}
 // 但是使用Append("a",3,4)后是无变化的,因为a是对象,可以使用Set("a",[]int{0,1,3,4})得到一样的结果
 // 如果设置了nil,对应json的null
-func (this *Map) Append(key string, value ...interface{}) *Map {
+func (this *Map) Append(key string, value ...any) *Map {
 	data := this
 	for _, v := range this.getKeys(key) {
 		//所有的父级都打上标记,方便后续判断
@@ -182,13 +182,13 @@ func (this *Map) refresh() *Map {
 
 // 获取对象的key或者数组的下标,用类型来区分,字符表示对象的key,数字表示数字的下标
 // 先分割.,再正则匹配[0-9]+,例如 a.key[1][0] ,得到 {"a","key",1,0}
-func (this *Map) getKeys(key string) []interface{} {
+func (this *Map) getKeys(key string) []any {
 	if len(key) == 0 {
-		return []interface{}{""}
+		return []any{""}
 	}
-	keys := []interface{}(nil)
+	keys := []any(nil)
 	for _, v := range strings.Split(key, ".") {
-		indexList := []interface{}(nil)
+		indexList := []any(nil)
 		length := 0
 		for _, k := range regexp.MustCompile(`\[[\-0-9]+\]`).FindAllString(v, -1) {
 			length += len(k)
@@ -240,7 +240,7 @@ func (this *Map) getIndex(idx int) int {
 }
 
 // 获取编解码函数
-func (this *Map) getUnmarshal() func(data []byte, v interface{}) error {
+func (this *Map) getUnmarshal() func(data []byte, v any) error {
 	if this.codec == nil {
 		if codec.Default != nil {
 			return codec.Default.Unmarshal
@@ -250,7 +250,7 @@ func (this *Map) getUnmarshal() func(data []byte, v interface{}) error {
 	return this.codec.Unmarshal
 }
 
-func (this *Map) getMarshal() func(v interface{}) ([]byte, error) {
+func (this *Map) getMarshal() func(v any) ([]byte, error) {
 	if this.codec == nil {
 		if codec.Default != nil {
 			return codec.Default.Marshal
@@ -266,15 +266,15 @@ func (this *Map) decode() *Map {
 		this.object = make(map[string]*Map)
 		if !this.Var.IsNil() {
 			switch val := this.Var.Val().(type) {
-			case map[string]interface{}:
+			case map[string]any:
 				for i, v := range val {
 					this.object[i] = newMap(v, this.codec)
 				}
-			case map[interface{}]interface{}:
+			case map[any]any:
 				for i, v := range val {
 					this.object[String(i)] = newMap(v, this.codec)
 				}
-			case []interface{}:
+			case []any:
 				this.isArray = true
 				for _, v := range val {
 					this.array = append(this.array, newMap(v, this.codec))
@@ -282,7 +282,7 @@ func (this *Map) decode() *Map {
 			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, bool:
 				//基础类型不用再次解析,字符串可以再次解析
 			default:
-				m := make(map[string]interface{})
+				m := make(map[string]any)
 				bs, ok := this.Var.Val().([]byte)
 				if !ok {
 					bs, _ = this.getMarshal()(this.Var.Val())
@@ -293,7 +293,7 @@ func (this *Map) decode() *Map {
 						this.object[String(i)] = newMap(v, this.codec)
 					}
 				} else {
-					var list []interface{}
+					var list []any
 					if err := parse(bs, &list); err == nil {
 						this.isArray = true
 						for _, v := range list {
@@ -304,12 +304,12 @@ func (this *Map) decode() *Map {
 
 			}
 		}
-		this.Extend = NewExtend(this)
+		this.Extend = NewExtend[string](this)
 	}
 	return this
 }
 
-func (this *Map) encode() interface{} {
+func (this *Map) encode() any {
 
 	//判断是否设置过新值,没解析直接取var的值
 	if !this.hasSet {
@@ -323,7 +323,7 @@ func (this *Map) encode() interface{} {
 
 	if this.isArray {
 		//数组
-		list := make([]interface{}, 0)
+		list := make([]any, 0)
 		for _, v := range this.array {
 			list = append(list, v.encode())
 		}
@@ -331,7 +331,7 @@ func (this *Map) encode() interface{} {
 	}
 
 	//对象
-	object := map[string]interface{}{}
+	object := map[string]any{}
 	for k, v := range this.object {
 		object[k] = v.encode()
 	}

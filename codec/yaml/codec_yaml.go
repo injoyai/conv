@@ -4,7 +4,7 @@ import "gopkg.in/yaml.v3"
 
 type Yaml struct{}
 
-func (Yaml) Marshal(v interface{}) ([]byte, error) {
+func (Yaml) Marshal(v any) ([]byte, error) {
 	switch val := v.(type) {
 	case []byte:
 		return val, nil
@@ -14,6 +14,6 @@ func (Yaml) Marshal(v interface{}) ([]byte, error) {
 	return yaml.Marshal(v)
 }
 
-func (Yaml) Unmarshal(data []byte, v interface{}) error {
+func (Yaml) Unmarshal(data []byte, v any) error {
 	return yaml.Unmarshal(data, v)
 }

@@ -6,13 +6,13 @@ import (
 
 func TestNewExtend(t *testing.T) {
 	a := &NewExtendEntity{}
-	a.Extend = NewExtend(a)
+	a.ExtendString = NewExtendDefault(a)
 	t.Log(a.GetString("", "444"))
 }
 
 type NewExtendEntity struct {
 	*Var
-	Extend
+	ExtendString
 }
 
 func (this *NewExtendEntity) GetVar(key string) *Var {

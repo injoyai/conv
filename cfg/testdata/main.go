@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/injoyai/conv/cfg/v2"
+	"github.com/injoyai/conv/v2/cfg"
 	"log"
 )
 

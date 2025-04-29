@@ -19,7 +19,7 @@
   
       pakeage main
 
-      import "github.com/injoyai/conv"
+      import "github.com/injoyai/conv/v2"
 
       func main(){
         
@@ -40,7 +40,7 @@
   
       pakeage main
 
-      import "github.com/injoyai/conv"
+      import "github.com/injoyai/conv/v2"
 
       func main(){
         
@@ -66,7 +66,7 @@
 
       pakeage main
 
-      import "github.com/injoyai/conv"
+      import "github.com/injoyai/conv/v2"
 
       func main(){
         
@@ -85,7 +85,7 @@
   
         pakeage main
   
-        import "github.com/injoyai/conv"
+        import "github.com/injoyai/conv/v2"
   
         func main(){
           
@@ -114,17 +114,17 @@
   
   package main
   
-  import "github.com/injoyai/conv"
+  import "github.com/injoyai/conv/v2"
   
   func main(){
-    m := map[string]interface{}{
+    m := map[string]any{
           "a": 1,
           "b": "2",
           "c": true,
           "d": 1.02,
           "e": 20.1,
           "f": 30.6,
-          "G": map[string]interface{}{
+          "G": map[string]any{
               "h": "10",
           },
       }
@@ -194,8 +194,8 @@
       package main
 
       import (
-          "github.com/injoyai/conv"
-          "github.com/injoyai/conv/codec"
+          "github.com/injoyai/conv/v2"
+          "github.com/injoyai/conv/v2/codec"
 	     )
 
       func main(){

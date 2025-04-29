@@ -1,13 +1,13 @@
 package cfg
 
 import (
-	"github.com/injoyai/conv"
+	"github.com/injoyai/conv/v2"
 	"os"
 )
 
 var defaultEnv = &Env{}
 
-func WithEnv() conv.IGetVar {
+func WithEnv() conv.StringGetter {
 	return defaultEnv
 }
 
@@ -17,5 +17,5 @@ func (this *Env) GetVar(key string) *conv.Var {
 	if v, ok := os.LookupEnv(key); ok {
 		return conv.New(v)
 	}
-	return conv.Nil()
+	return conv.Nil
 }

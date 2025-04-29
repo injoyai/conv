@@ -1,7 +1,7 @@
 package conv
 
 import (
-	"github.com/injoyai/conv/codec"
+	"github.com/injoyai/conv/v2/codec"
 	"testing"
 )
 
@@ -99,13 +99,13 @@ func Test_Map(t *testing.T) {
 		t.Log(x.Get("c").String())
 		x.Set("b", `{"a":1,"b":2}`)
 		t.Log(x.String())
-		x.Set("c[2]", map[string]interface{}{
+		x.Set("c[2]", map[string]any{
 			"aa": 1,
 			"bb": true,
 			"cc": 1.02,
-			"dd": []interface{}{12, 10.3, false, true, "999"},
-			"ee": map[string]interface{}{
-				"aaa": map[interface{}]interface{}{
+			"dd": []any{12, 10.3, false, true, "999"},
+			"ee": map[string]any{
+				"aaa": map[any]any{
 					100: 101, "102": 103, 104.1: 105, true: false,
 				},
 			},
@@ -144,7 +144,7 @@ func Test_Map3(t *testing.T) {
 		x.Append("e", 1)
 		t.Log(x.String())
 		t.Log(x.GetString("e[0]"))
-		x.Set("f", map[string]interface{}{"aa": 1, "bb": 2})
+		x.Set("f", map[string]any{"aa": 1, "bb": 2})
 		t.Log(x.String())
 		x.Append("f", 1, 2, 3)
 		x.Set("g", nil)

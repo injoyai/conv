@@ -18,7 +18,7 @@ type apiPayload interface {
 }
 
 type apiInterfaces interface {
-	Interfaces() []interface{}
+	Interfaces() []any
 }
 
 type apiFloat32 interface {
@@ -50,5 +50,5 @@ type apiBool interface {
 }
 
 type apiCopy interface {
-	Copy() interface{}
+	Copy() any
 }

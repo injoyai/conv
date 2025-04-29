@@ -1,16 +1,16 @@
 package codec
 
 import (
-	"github.com/injoyai/conv/codec/ini"
-	"github.com/injoyai/conv/codec/json"
-	"github.com/injoyai/conv/codec/toml"
-	"github.com/injoyai/conv/codec/yaml"
+	"github.com/injoyai/conv/v2/codec/ini"
+	"github.com/injoyai/conv/v2/codec/json"
+	"github.com/injoyai/conv/v2/codec/toml"
+	"github.com/injoyai/conv/v2/codec/yaml"
 	"strings"
 )
 
 type Interface interface {
-	Marshal(v interface{}) ([]byte, error)
-	Unmarshal(data []byte, v interface{}) error
+	Marshal(v any) ([]byte, error)
+	Unmarshal(data []byte, v any) error
 }
 
 var (

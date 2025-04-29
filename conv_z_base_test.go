@@ -55,7 +55,7 @@ func Test_copyMap(t *testing.T) {
 			Body: true,
 		}
 		{
-			m := make(map[string]interface{})
+			m := make(map[string]any)
 			if err := Unmarshal(a, &m); err != nil {
 				t.Error(err)
 				return
@@ -64,7 +64,7 @@ func Test_copyMap(t *testing.T) {
 		}
 
 		{
-			m := make(map[string]interface{})
+			m := make(map[string]any)
 			if err := Unmarshal(a, &m, UnmarshalParam{Tags: []string{"xxx"}}); err != nil {
 				t.Error(err)
 				return
@@ -73,7 +73,7 @@ func Test_copyMap(t *testing.T) {
 		}
 
 		{
-			m := make(map[string]interface{})
+			m := make(map[string]any)
 			if err := Unmarshal(a, &m, UnmarshalParam{Tags: []string{"xxx", "json", "orm"}}); err != nil {
 				t.Error(err)
 				return
@@ -85,7 +85,7 @@ func Test_copyMap(t *testing.T) {
 
 	{ //map转对象
 		t.Log("\n===================================Map转对象====================================")
-		m := map[string]interface{}{
+		m := map[string]any{
 			"name":  "小明",
 			"age":   18,
 			"body":  true,

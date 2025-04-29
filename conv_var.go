@@ -69,7 +69,7 @@ func (this *Var) IsPointer() bool {
 }
 
 func (this *Var) IsNil() bool {
-	return this.Val() == nil
+	return this == nil || this.Val() == nil
 }
 
 func (this *Var) Interface(def ...any) any {

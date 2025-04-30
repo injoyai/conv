@@ -63,6 +63,10 @@ type Getter[T any] interface {
 }
 
 func NewExtendDefault(i Getter[string]) Extend[string] {
+	return NewExtendString(i)
+}
+
+func NewExtendString(i Getter[string]) Extend[string] {
 	return NewExtend[string](i)
 }
 

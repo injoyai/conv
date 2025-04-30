@@ -2,9 +2,9 @@ package conv
 
 import "time"
 
-type ExtendString = Extend[string]
+type Extend = ExtendGeneric[string]
 
-type Extend[T any] interface {
+type ExtendGeneric[T any] interface {
 	Getter[T]
 	IsDefault(key T) bool
 	IsNumber(key T) bool
@@ -54,23 +54,18 @@ type Extend[T any] interface {
 }
 
 type (
-	StringGetter = Getter[string]
-	IntGetter    = Getter[int]
+	StringGetter  = Getter[string]
+	IGetVar       = Getter[string]
+	Getter[T any] interface {
+		GetVar(T) *Var
+	}
 )
 
-type Getter[T any] interface {
-	GetVar(T) *Var
+func NewExtend(i IGetVar) Extend {
+	return NewExtendGeneric[string](i)
 }
 
-func NewExtendDefault(i Getter[string]) Extend[string] {
-	return NewExtendString(i)
-}
-
-func NewExtendString(i Getter[string]) Extend[string] {
-	return NewExtend[string](i)
-}
-
-func NewExtend[T comparable](i Getter[T]) Extend[T] {
+func NewExtendGeneric[T comparable](i Getter[T]) ExtendGeneric[T] {
 	return &extend[T]{Getter: i}
 }
 

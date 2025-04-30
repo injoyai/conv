@@ -12,7 +12,7 @@ var (
 	onceFlags    sync.Once
 )
 
-func WithFlag(flags ...*Flag) conv.StringGetter {
+func WithFlag(flags ...*Flag) conv.IGetVar {
 	onceFlags.Do(func() {
 		f := &Flags{FlagSet: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
 		for _, v := range flags {

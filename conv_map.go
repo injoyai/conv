@@ -28,14 +28,14 @@ func newMap(i any, codec ...codec.Interface) *Map {
 // Map deep 惰性解析 DMap
 // 万次解析0.09s
 type Map struct {
-	*Var                           //值
-	Extend[string]                 //继承
-	isArray        bool            //是否是对象,否则是列表,用于处理内容为空时,显示[]还是{}的情况
-	object         map[string]*Map //对象实例
-	array          []*Map          //数组实例
-	codec          codec.Interface //编解码
-	decoded        bool            //惰性加载,解析一次
-	hasSet         bool            //设置了新数据
+	*Var                    //值
+	Extend                  //继承
+	isArray bool            //是否是对象,否则是列表,用于处理内容为空时,显示[]还是{}的情况
+	object  map[string]*Map //对象实例
+	array   []*Map          //数组实例
+	codec   codec.Interface //编解码
+	decoded bool            //惰性加载,解析一次
+	hasSet  bool            //设置了新数据
 }
 
 // GetVar 实现Extend的接口,继承Extend的接口
@@ -304,7 +304,7 @@ func (this *Map) decode() *Map {
 
 			}
 		}
-		this.Extend = NewExtend[string](this)
+		this.Extend = NewExtend(this)
 	}
 	return this
 }

@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-func WithAny(i any, codec ...codec.Interface) conv.StringGetter {
+func WithAny(i any, codec ...codec.Interface) conv.IGetVar {
 	return conv.NewMap(i, codec...)
 }
 
-func WithDefaultFile() conv.StringGetter {
+func WithDefaultFile() conv.IGetVar {
 	return WithFile("./config/config.yaml")
 }
 
-func WithExecuteFile(join string, codecs ...codec.Interface) conv.StringGetter {
+func WithExecuteFile(join string, codecs ...codec.Interface) conv.IGetVar {
 	executeName, err := os.Executable()
 	if err != nil {
 		executeName = "./"
@@ -26,7 +26,7 @@ func WithExecuteFile(join string, codecs ...codec.Interface) conv.StringGetter {
 	return WithFile(filename, codecs...)
 }
 
-func WithFile(filename string, codecs ...codec.Interface) conv.StringGetter {
+func WithFile(filename string, codecs ...codec.Interface) conv.IGetVar {
 	bs, err := os.ReadFile(filename)
 	if err != nil {
 		//log.Println("err: ", err)
@@ -50,18 +50,18 @@ func WithFile(filename string, codecs ...codec.Interface) conv.StringGetter {
 	return conv.NewMap(bs, codecs...)
 }
 
-func WithYaml(filename string) conv.StringGetter {
+func WithYaml(filename string) conv.IGetVar {
 	return WithFile(filename, codec.Yaml)
 }
 
-func WithJson(filename string) conv.StringGetter {
+func WithJson(filename string) conv.IGetVar {
 	return WithFile(filename, codec.Json)
 }
 
-func WithToml(filename string) conv.StringGetter {
+func WithToml(filename string) conv.IGetVar {
 	return WithFile(filename, codec.Toml)
 }
 
-func WithIni(filename string) conv.StringGetter {
+func WithIni(filename string) conv.IGetVar {
 	return WithFile(filename, codec.Ini)
 }

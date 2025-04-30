@@ -7,7 +7,7 @@ import (
 
 var defaultEnv = &Env{}
 
-func WithEnv() conv.StringGetter {
+func WithEnv() conv.IGetVar {
 	return defaultEnv
 }
 

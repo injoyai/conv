@@ -7,22 +7,22 @@ import (
 
 var Default = New(WithDefaultFile(), WithEnv())
 
-func Init(i ...conv.StringGetter) { Default = New(i...) }
+func Init(i ...conv.IGetVar) { Default = New(i...) }
 
-func New(i ...conv.StringGetter) *Entity {
+func New(i ...conv.IGetVar) *Entity {
 	c := &Entity{}
 	for _, v := range i {
 		if v != nil {
-			c.list = append(c.list, conv.NewExtend[string](v))
+			c.list = append(c.list, conv.NewExtend(v))
 		}
 	}
-	c.Extend = conv.NewExtend[string](c)
+	c.Extend = conv.NewExtend(c)
 	return c
 }
 
 type Entity struct {
-	list []conv.Extend[string]
-	conv.Extend[string]
+	list []conv.Extend
+	conv.Extend
 }
 
 func (this *Entity) GetVar(key string) *conv.Var {

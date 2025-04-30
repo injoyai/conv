@@ -295,6 +295,13 @@ func (this *Var) IMap(def ...map[any]any) map[any]any {
 	return IMap(this.Val())
 }
 
+func (this *Var) AMap(def ...map[any]any) map[any]any {
+	if this.IsNil() && len(def) > 0 {
+		return def[0]
+	}
+	return IMap(this.Val())
+}
+
 func (this *Var) DMap(def ...any) *Map {
 	if this.IsNil() && len(def) > 0 {
 		return NewMap(def[0])

@@ -250,6 +250,10 @@ func (this *extend[T]) GetIMap(key T, def ...map[any]any) map[any]any {
 	return this.GetVar(key).IMap(def...)
 }
 
+func (this *extend[T]) GetAMap(key T, def ...map[any]any) map[any]any {
+	return this.GetVar(key).AMap(def...)
+}
+
 func (this *extend[T]) GetDMap(key T, def ...any) *Map {
 	return this.GetVar(key).DMap(def...)
 }

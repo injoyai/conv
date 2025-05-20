@@ -31,7 +31,7 @@ func (this *Entity) GetVar(key string) *conv.Var {
 			return val
 		}
 	}
-	return conv.Nil
+	return conv.Nil()
 }
 
 // GetString 读取string类型数据,其它类型可转string类型,复杂的类型会转json

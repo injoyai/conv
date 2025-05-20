@@ -5,20 +5,19 @@ import (
 	"time"
 )
 
-var (
-	Nil = &Var{}
-)
+func Nil() *Var {
+	return &Var{}
+}
 
 func New(i any) *Var {
 	if val, ok := i.(*Var); ok {
 		return val
 	}
-	return &Var{canSet: true, value: i}
+	return &Var{value: i}
 }
 
 type Var struct {
-	canSet bool //是否能改变值
-	value  any  //值
+	value any //值
 }
 
 func (this *Var) Val() any {
@@ -26,9 +25,6 @@ func (this *Var) Val() any {
 }
 
 func (this *Var) Set(i any) {
-	if !this.canSet {
-		return
-	}
 	this.value = i
 }
 

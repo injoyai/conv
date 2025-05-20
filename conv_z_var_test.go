@@ -6,7 +6,7 @@ import (
 
 func TestNew(t *testing.T) {
 	t.Log(New(nil))
-	t.Log(New(Nil))
+	t.Log(New(Nil()))
 	t.Log(String([]string{"a", "b"}))
 	t.Log(New("0xa0").Int())
 	t.Log(String(New(100)))

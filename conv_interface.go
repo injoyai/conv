@@ -53,9 +53,18 @@ type apiCopy interface {
 	Copy() any
 }
 
+// Comparable 可比较,同1.21版本的cmp.Ordered
 type Comparable interface {
+	Integer
+	Floater
+	~string
+}
+
+type Integer interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 |
-		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
-		~float32 | ~float64 |
-		string
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+}
+
+type Floater interface {
+	~float32 | ~float64
 }

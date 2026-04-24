@@ -14,11 +14,7 @@ func Append(i ...conv.IGetVar) { Default.Append(i...) }
 
 func New(i ...conv.IGetVar) *Entity {
 	c := &Entity{}
-	for _, v := range i {
-		if v != nil {
-			c.list = append(c.list, conv.NewExtend(v))
-		}
-	}
+	c.Append(i...)
 	c.Extend = conv.NewExtend(c)
 	return c
 }

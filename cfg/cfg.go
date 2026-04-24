@@ -1,13 +1,16 @@
 package cfg
 
 import (
-	"github.com/injoyai/conv"
 	"time"
+
+	"github.com/injoyai/conv"
 )
 
 var Default = New(WithDefaultFile(), WithEnv())
 
 func Init(i ...conv.IGetVar) { Default = New(i...) }
+
+func Append(i ...conv.IGetVar) { Default.Append(i...) }
 
 func New(i ...conv.IGetVar) *Entity {
 	c := &Entity{}
@@ -23,6 +26,15 @@ func New(i ...conv.IGetVar) *Entity {
 type Entity struct {
 	list []conv.Extend
 	conv.Extend
+}
+
+func (this *Entity) Append(i ...conv.IGetVar) *Entity {
+	for _, v := range i {
+		if v != nil {
+			this.list = append(this.list, conv.NewExtend(v))
+		}
+	}
+	return this
 }
 
 func (this *Entity) GetVar(key string) *conv.Var {

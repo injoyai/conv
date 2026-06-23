@@ -195,6 +195,7 @@ func TestMapSet_CreatesNestedArrayPath(t *testing.T) {
 	x := NewMap(`{"a":{"b":[1,2,3]}}`)
 
 	t.Log(x.String())
+	t.Log(x.Get("").String())
 	t.Log(x.Get("a").String())
 	t.Log(x.Get("a.b").String())
 	t.Log(x.Get("a.b[0]").String())
@@ -204,6 +205,11 @@ func TestMapSet_CreatesNestedArrayPath(t *testing.T) {
 	if got := x.GetInt("a.b[0]"); got != 100 {
 		t.Fatalf("expected a.b[0] to be 100, got %d; map=%s", got, x.String())
 	}
+
+	x.Refresh()
+	t.Log(x.GMap())
+	t.Log(x.String())
+	t.Log(x.Get("").String())
 }
 
 func TestMapAppend_AppendsValuesInOrder(t *testing.T) {

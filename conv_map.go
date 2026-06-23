@@ -73,7 +73,17 @@ func (this *Map) Get(key string) *Map {
 			data = data.getArray(k)
 		}
 	}
-	return data.refresh()
+	return data.Refresh()
+}
+
+// Refresh 刷新,因为是惰性加载/更新,固有个刷新函数
+// 正常情况是使用不到,除非直接使用Var的内容
+func (this *Map) Refresh() *Map {
+	if this.hasSet {
+		this.Var.Set(this.encode())
+		this.hasSet = false
+	}
+	return this
 }
 
 // Set 设置数据,会覆盖原先的数据,
@@ -157,26 +167,6 @@ func (this *Map) Del(key string) {
 	}
 }
 
-// String 重构下Var的String函数,针对Set/Append后的惰性更新
-func (this *Map) String(def ...string) string {
-	this.refresh()
-	if this.Var.IsNil() {
-		return Default("", def...)
-	}
-	bs, _ := this.getMarshal()(this.Var.Val())
-	return string(bs)
-}
-
-// refresh 刷新,因为是惰性加载/更新,固有个刷新函数
-// 正常情况是使用不到,除非直接
-func (this *Map) refresh() *Map {
-	if this.hasSet {
-		this.Var.Set(this.encode())
-		this.hasSet = false
-	}
-	return this
-}
-
 /*
 
 
@@ -187,7 +177,7 @@ func (this *Map) refresh() *Map {
 // 先分割.,再正则匹配[0-9]+,例如 a.key[1][0] ,得到 {"a","key",1,0}
 func (this *Map) getKeys(key string) []any {
 	if len(key) == 0 {
-		return []any{""}
+		return []any{}
 	}
 	keys := []any(nil)
 	for _, v := range strings.Split(key, ".") {

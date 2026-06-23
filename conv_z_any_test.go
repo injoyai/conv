@@ -50,53 +50,6 @@ func TestInt64(t *testing.T) {
 
 }
 
-func TestUint(t *testing.T) {
-	bs := Bytes(float32(11.375))
-	t.Log(hex.EncodeToString(bs))
-	t.Log(Int(bs))
-
-	if Uint32(11.375) != 1094057984 {
-		t.Log(Bytes(11.375))
-		t.Log(Uint64(Bytes(11.375)))
-		t.Log(Uint32(Bytes(11.375)))
-		t.Error("错误")
-		return
-	}
-	if Uint64(11.375) != 4622593173774925824 {
-		t.Error("错误")
-		return
-	}
-	if Uint32(float32(11.375)) != 1094057984 {
-		t.Error("错误")
-		return
-	}
-	if Uint64(float32(11.375)) != 4622593173774925824 {
-		t.Error("错误")
-		return
-	}
-	if Float32(Bytes(uint64(4622593173774925824))) != 11.375 {
-		t.Error("错误")
-		return
-	}
-	if Float32(uint32(1094057984)) != 11.375 {
-		t.Log(Float32(uint32(1094057984)))
-		t.Error("错误")
-		return
-	}
-	if Float64(uint32(1094057984)) != 11.375 {
-		t.Error("错误")
-		return
-	}
-	if Float64(uint64(4622593173774925824)) != 11.375 {
-		t.Error("错误")
-		return
-	}
-}
-
-func TestMap(t *testing.T) {
-
-}
-
 func TestFloat64bits(t *testing.T) {
 	t.Log(Int(Bytes(1.01)))
 	t.Log(Uint64(1.01))

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math"
 	"reflect"
 	"strconv"
@@ -122,7 +121,7 @@ func toString(i any) string {
 	case apiPayload:
 		return value.Payload()
 	case io.Reader:
-		bs, _ := ioutil.ReadAll(value)
+		bs, _ := io.ReadAll(value)
 		return string(bs)
 	case *Var:
 		return value.String()

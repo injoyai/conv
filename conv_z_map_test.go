@@ -1,8 +1,9 @@
 package conv
 
 import (
-	"github.com/injoyai/conv/codec"
 	"testing"
+
+	"github.com/injoyai/conv/codec"
 )
 
 var s = `{
@@ -188,6 +189,37 @@ age: 18`
 	t.Log(x.String())
 	x.Set("high", 180)
 	t.Log(x.String())
+}
+
+func TestMapSet_CreatesNestedArrayPath(t *testing.T) {
+	x := NewMap(`{"a":{"b":[1,2,3]}}`)
+
+	t.Log(x.String())
+	t.Log(x.Get("a").String())
+	t.Log(x.Get("a.b").String())
+	t.Log(x.Get("a.b[0]").String())
+
+	x.Set("a.b[0]", 100)
+
+	if got := x.GetInt("a.b[0]"); got != 100 {
+		t.Fatalf("expected a.b[0] to be 100, got %d; map=%s", got, x.String())
+	}
+}
+
+func TestMapAppend_AppendsValuesInOrder(t *testing.T) {
+	x := NewMap(`{"c":["a","b"]}`)
+
+	x.Append("c", "e", "ee", "eee")
+
+	if got := x.GetString("c[2]"); got != "e" {
+		t.Fatalf("expected c[2] to be e, got %q; map=%s", got, x.String())
+	}
+	if got := x.GetString("c[3]"); got != "ee" {
+		t.Fatalf("expected c[3] to be ee, got %q; map=%s", got, x.String())
+	}
+	if got := x.GetString("c[4]"); got != "eee" {
+		t.Fatalf("expected c[4] to be eee, got %q; map=%s", got, x.String())
+	}
 }
 
 // TestNewMap2 [0.67,0.58,0.62,0.59,0.60,0.57]

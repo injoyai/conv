@@ -1,10 +1,11 @@
 package conv
 
 import (
-	"github.com/injoyai/conv/codec"
-	json "github.com/json-iterator/go"
 	"regexp"
 	"strings"
+
+	"github.com/injoyai/conv/codec"
+	json "github.com/json-iterator/go"
 )
 
 // NewMap 新建数据
@@ -159,9 +160,11 @@ func (this *Map) Del(key string) {
 // String 重构下Var的String函数,针对Set/Append后的惰性更新
 func (this *Map) String(def ...string) string {
 	this.refresh()
+	if this.Var.IsNil() {
+		return Default("", def...)
+	}
 	bs, _ := this.getMarshal()(this.Var.Val())
 	return string(bs)
-	return this.Var.String(def...)
 }
 
 // refresh 刷新,因为是惰性加载/更新,固有个刷新函数
@@ -281,13 +284,21 @@ func (this *Map) decode() *Map {
 				}
 			case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, bool:
 				//基础类型不用再次解析,字符串可以再次解析
+
 			default:
-				m := make(map[string]any)
-				bs, ok := this.Var.Val().([]byte)
-				if !ok {
-					bs, _ = this.getMarshal()(this.Var.Val())
+
+				var bs []byte
+				switch v := this.Var.Val().(type) {
+				case []byte:
+					bs = v
+				case string:
+					bs = []byte(v)
+				default:
+					bs, _ = this.getMarshal()(v)
 				}
+
 				parse := this.getUnmarshal()
+				m := make(map[string]any)
 				if err := parse(bs, &m); err == nil {
 					for i, v := range m {
 						this.object[String(i)] = newMap(v, this.codec)

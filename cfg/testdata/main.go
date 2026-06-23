@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/injoyai/conv/cfg"
 	"log"
+
+	"github.com/injoyai/conv/cfg"
 )
 
 // -a=101 -aa=101
 func main() {
 	cfg.Init(
-		cfg.WithFlag(&cfg.Flag{Name: "a"}, &cfg.Flag{Name: "aa"}),
+		cfg.WithFlag("v", "aa"),
 		cfg.WithFile("./testdata/config.yaml"),
 	)
 	log.Println(cfg.GetInt("child[0].time"))

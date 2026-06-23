@@ -1,11 +1,13 @@
 package cfg
 
 import (
-	"github.com/injoyai/conv"
-	"github.com/injoyai/conv/codec"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/injoyai/conv"
+	"github.com/injoyai/conv/codec"
 )
 
 func WithAny(i any, codec ...codec.Interface) conv.IGetVar {
@@ -29,8 +31,8 @@ func WithExecuteFile(join string, codecs ...codec.Interface) conv.IGetVar {
 func WithFile(filename string, codecs ...codec.Interface) conv.IGetVar {
 	bs, err := os.ReadFile(filename)
 	if err != nil {
-		//log.Println("err: ", err)
-		//return nil, err
+		log.Printf("[ERR][conv.WithFile] %v\n", err)
+		return nil
 	}
 
 	if len(codecs) == 0 {

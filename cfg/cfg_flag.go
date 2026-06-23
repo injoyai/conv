@@ -3,21 +3,30 @@ package cfg
 import (
 	"flag"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/injoyai/conv"
 )
 
 var (
-	defaultFlags = &Flags{}
+	defaultFlags = &_flags{}
 	onceFlags    sync.Once
 )
 
-func WithFlag(flags ...*Flag) conv.IGetVar {
+func WithFlag[T Flag | *Flag | string](flags ...T) conv.IGetVar {
 	onceFlags.Do(func() {
-		f := &Flags{FlagSet: flag.NewFlagSet(os.Args[0], flag.ContinueOnError)}
+		f := &_flags{FlagSet: flag.NewFlagSet(os.Args[0], flag.ContinueOnError)}
 		for _, v := range flags {
-			f.String(v.Name, conv.String(v.Default), v.Usage)
+			switch vv := any(v).(type) {
+			case *Flag:
+				f.String(vv.Name, conv.String(vv.Default), vv.Usage)
+			case Flag:
+				f.String(vv.Name, conv.String(vv.Default), vv.Usage)
+			case string:
+				vv = strings.TrimLeft(vv, "-")
+				f.String(vv, "", "")
+			}
 		}
 		f.Parse(os.Args[1:])
 		defaultFlags = f
@@ -25,11 +34,11 @@ func WithFlag(flags ...*Flag) conv.IGetVar {
 	return defaultFlags
 }
 
-type Flags struct {
+type _flags struct {
 	*flag.FlagSet
 }
 
-func (this *Flags) GetVar(key string) *conv.Var {
+func (this *_flags) GetVar(key string) *conv.Var {
 	f := this.Lookup(key)
 	if f == nil || f.Value.String() == "" {
 		return conv.Nil()

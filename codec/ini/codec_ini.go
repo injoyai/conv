@@ -3,8 +3,10 @@ package ini
 import (
 	"bytes"
 	"errors"
-	"gopkg.in/ini.v1"
+	"fmt"
 	"strings"
+
+	"gopkg.in/ini.v1"
 )
 
 type Ini struct {
@@ -32,7 +34,7 @@ func (i Ini) Unmarshal(data []byte, v any) error {
 
 	m, ok := v.(*map[string]any)
 	if !ok {
-		return nil
+		return fmt.Errorf("type error: unmarshal target must be *map[string]any, got %T", v)
 	}
 
 	cfg := ini.Empty(i.LoadOptions)

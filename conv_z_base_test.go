@@ -115,3 +115,24 @@ func Test_copyMap(t *testing.T) {
 	}
 
 }
+
+func TestInterfaces_MultiNilPointerDoesNotPanic(t *testing.T) {
+	var base []int
+	ptr := &base
+	var ptr2 **[]int = &ptr
+	*ptr2 = nil
+
+	defer func() {
+		if e := recover(); e != nil {
+			t.Fatalf("Interfaces should not panic for multi-level nil pointer: %v", e)
+		}
+	}()
+
+	got := Interfaces(ptr2)
+	if got == nil {
+		return
+	}
+	if len(got) != 1 || got[0] != ptr2 {
+		t.Fatalf("expected fallback slice containing original value, got %#v", got)
+	}
+}

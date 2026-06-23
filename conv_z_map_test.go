@@ -192,7 +192,7 @@ age: 18`
 }
 
 func TestMapSet_CreatesNestedArrayPath(t *testing.T) {
-	x := NewMap(`{"a":{"b":[1,2,3]}}`)
+	x := NewMap(`{"a":{"b":[1,2,3]},"c":4}`)
 
 	t.Log(x.String())
 	t.Log(x.Get("").String())
@@ -201,6 +201,7 @@ func TestMapSet_CreatesNestedArrayPath(t *testing.T) {
 	t.Log(x.Get("a.b[0]").String())
 
 	x.Set("a.b[0]", 100)
+	x.Del("c")
 
 	if got := x.GetInt("a.b[0]"); got != 100 {
 		t.Fatalf("expected a.b[0] to be 100, got %d; map=%s", got, x.String())

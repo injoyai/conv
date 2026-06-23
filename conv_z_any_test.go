@@ -174,16 +174,19 @@ func TestCopy(t *testing.T) {
 	{ //空指针
 		m := map[any]any(nil)
 		m2 := Copy(m).(map[any]any)
-		t.Log(m == nil)
-		t.Log(m2 == nil)
+		if m2 != nil {
+			t.Error("nil map 复制后应保持 nil")
+		}
 		s := []any(nil)
 		s2 := Copy(s).([]any)
-		t.Log(s == nil)
-		t.Log(s2 == nil)
+		if s2 != nil {
+			t.Error("nil slice 复制后应保持 nil")
+		}
 		a := (*testA)(nil)
 		b := Copy(a).(*testA)
-		t.Log(a == nil)
-		t.Log(b == nil)
+		if b != nil {
+			t.Error("nil pointer 复制后应保持 nil")
+		}
 	}
 	{ //接口
 		a := testI(&testA{})
@@ -215,12 +218,94 @@ type testA struct {
 	s string
 }
 
+type testCopy struct {
+	s string
+}
+
+func (this *testCopy) Copy() any {
+	return &testCopy{s: this.s}
+}
+
 func (this *testA) Set(s string) {
 	this.s = s
 }
 
 func (this *testA) Print() {
 	log.Println(this.s)
+}
+
+func TestCopy_NilPointer(t *testing.T) {
+	var a *testA
+
+	defer func() {
+		if e := recover(); e != nil {
+			t.Fatalf("Copy should not panic for nil pointer: %v", e)
+		}
+	}()
+
+	b, ok := Copy(a).(*testA)
+	if !ok {
+		t.Fatalf("expected copied value type *testA")
+	}
+	if b != nil {
+		t.Fatalf("expected copied nil pointer, got %#v", b)
+	}
+}
+
+func TestCopy_TypedNilInterface(t *testing.T) {
+	var a testI = (*testA)(nil)
+
+	defer func() {
+		if e := recover(); e != nil {
+			t.Fatalf("Copy should not panic for typed nil interface: %v", e)
+		}
+	}()
+
+	b, ok := Copy(a).(testI)
+	if !ok {
+		t.Fatalf("expected copied value type testI")
+	}
+	if typed, ok := b.(*testA); !ok || typed != nil {
+		t.Fatalf("expected copied typed nil interface holding *testA(nil), got %#v", b)
+	}
+}
+
+func TestCopy_ApiCopyNilReceiver(t *testing.T) {
+	var a *testCopy
+
+	defer func() {
+		if e := recover(); e != nil {
+			t.Fatalf("Copy should not panic for apiCopy nil receiver: %v", e)
+		}
+	}()
+
+	b, ok := Copy(a).(*testCopy)
+	if !ok {
+		t.Fatalf("expected copied value type *testCopy")
+	}
+	if b != nil {
+		t.Fatalf("expected copied nil pointer, got %#v", b)
+	}
+}
+
+func TestCopy_ApiCopyValue(t *testing.T) {
+	a := &testCopy{s: "hello"}
+
+	b, ok := Copy(a).(*testCopy)
+	if !ok {
+		t.Fatalf("expected copied value type *testCopy")
+	}
+	if b == a {
+		t.Fatalf("expected apiCopy to return a new instance")
+	}
+	if b.s != a.s {
+		t.Fatalf("expected copied value %q, got %q", a.s, b.s)
+	}
+
+	b.s = "world"
+	if a.s != "hello" {
+		t.Fatalf("expected source to remain unchanged, got %q", a.s)
+	}
 }
 
 func Test_unmarshal(t *testing.T) {

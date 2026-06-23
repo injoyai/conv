@@ -240,6 +240,12 @@ func Copy(i any) any {
 		return v.Copy()
 	default:
 		original := reflect.ValueOf(i)
+		switch original.Kind() {
+		case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
+			if original.IsNil() {
+				return i
+			}
+		}
 		result := reflect.New(original.Type()).Elem()
 		copySameKind(result, original)
 		return result.Interface()

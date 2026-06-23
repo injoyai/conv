@@ -2,9 +2,10 @@ package cfg
 
 import (
 	"flag"
-	"github.com/injoyai/conv"
 	"os"
 	"sync"
+
+	"github.com/injoyai/conv"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 
 func WithFlag(flags ...*Flag) conv.IGetVar {
 	onceFlags.Do(func() {
-		f := &Flags{FlagSet: flag.NewFlagSet(os.Args[0], flag.ExitOnError)}
+		f := &Flags{FlagSet: flag.NewFlagSet(os.Args[0], flag.ContinueOnError)}
 		for _, v := range flags {
 			f.String(v.Name, conv.String(v.Default), v.Usage)
 		}
